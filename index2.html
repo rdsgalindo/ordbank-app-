@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ordbank-app</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+      line-height: 1.6;
+      background: #f5f6f8;
+      color: #222;
+    }
+
+    h1, h2, h3 {
+      margin-bottom: 10px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 140px;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+
+    .controls,
+    .toolbar,
+    .status-buttons {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      align-items: center;
+    }
+
+    button, select, input[type="text"] {
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      background: #2d2d2d;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #111;
+    }
+
+    .legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+
+    .legend span {
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .unknown {
+      background: #f8caca;
+    }
+
+    .unsure {
+      background: #fff0b8;
+    }
+
+    .known {
+      background: #cfeccf;
+    }
+
+    .word {
+      display: inline-block;
+      cursor: pointer;
+      padding: 2px 4px;
+      margin-right: 2px;
+      margin-bottom: 2px;
+      border-radius: 5px;
+      transition: 0.15s ease;
+    }
+
+    .word:hover {
+      outline: 1px solid #777;
+    }
+
+    .text-area {
+      font-size: 22px;
+      line-height: 2.1;
+    }
+
+    .small {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .stats {
+      font-weight: bold;
+      margin-top: 12px;
+    }
+
+    .panel-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .selected-word-box {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 14px;
+      background: #fafafa;
+    }
+
+    .selected-word {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .status-btn {
+      color: #222;
+      background: #eee;
+      border: 1px solid #ccc;
+    }
+
+    .status-btn.active-unknown {
+      background: #f8caca;
+    }
+
+    .status-btn.active-unsure {
+      background: #fff0b8;
+    }
+
+    .status-btn.active-known {
+      background: #cfeccf;
+    }
+
+    .status-btn.active-none {
+      background: #e9e9e9;
+      font-weight: bold;
+    }
+
+    .translation-input,
+    .input-full {
+      width: 100%;
+      box-sizing: border-box;
+      margin-top: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f3f3;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+    }
+
+    .type-pill {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #e9eef8;
+    }
+
+    .file-input-label {
+      display: inline-block;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #2d2d2d;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .file-input-label:hover {
+      background: #111;
+    }
+
+    #importFile {
+      display: none;
+    }
+
+    .training-box {
+      margin-top: 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      background: #fafafa;
+    }
+
+    .training-word {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
+
+    .training-feedback {
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    .training-feedback.correct {
+      color: #1d6f2c;
+    }
+
+    .training-feedback.wrong {
+      color: #9b1c1c;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .sub-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .sub-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Spansk text med personlig ordbank</h1>
+
+  <div class="card">
+    <h2>1. Lägg in text</h2>
+    <p class="small">
+      Klistra in en spansk text och klicka på “Ladda text”. Klicka sedan på ord i texten för att markera dem och skriva egen översättning.
+    </p>
+    <textarea id="textInput">Hola, me llamo Ana y vivo en Madrid con mi familia. Todos los días voy a la escuela por la mañana. Me gusta leer libros, escuchar música y hablar con mis amigos. Después de la escuela, como en casa y hago mis tareas. A veces hace frío en invierno, pero en verano hace calor.</textarea>
+    <div class="controls">
+      <button id="loadTextBtn">Ladda text</button>
+      <button id="resetMarksBtn">Nollställ markeringar</button>
+      <button id="resetAllBtn">Nollställ allt</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Instruktion</h2>
+    <p><strong>Klicka på ett ord</strong> i texten. Då kan du:</p>
+    <div class="legend">
+      <span class="unknown">markera som okänt</span>
+      <span class="unsure">markera som osäkert</span>
+      <span class="known">markera som kan</span>
+    </div>
+    <p class="small">
+      Du kan också skriva en egen svensk översättning till ordet. För flerordsuttryck använder du rutan “Lägg till uttryck”.
+    </p>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="panel-grid">
+    <div class="card">
+      <h2>3. Text</h2>
+      <div id="textContainer" class="text-area"></div>
+    </div>
+
+    <div class="card">
+      <h2>4. Ordpanel</h2>
+      <div class="selected-word-box">
+        <div id="selectedWord" class="selected-word">Inget ord valt</div>
+        <div class="small">Status</div>
+        <div class="status-buttons">
+          <button class="status-btn" id="btnUnknown">Okänt</button>
+          <button class="status-btn" id="btnUnsure">Osäkert</button>
+          <button class="status-btn" id="btnKnown">Kan</button>
+          <button class="status-btn" id="btnClear">Avmarkera</button>
+        </div>
+
+        <div class="small">Egen svensk översättning</div>
+        <input
+          type="text"
+          id="translationInput"
+          class="translation-input"
+          placeholder="Skriv översättning här"
+        />
+        <div class="controls">
+          <button id="saveTranslationBtn">Spara översättning</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. Lägg till uttryck</h2>
+    <p class="small">
+      Använd detta för flerordsuttryck som inte fungerar bra som enstaka ord, till exempel “hace frío”.
+    </p>
+
+    <div class="sub-grid">
+      <div>
+        <label for="phraseSpanish"><strong>Spanska</strong></label>
+        <input type="text" id="phraseSpanish" class="input-full" placeholder="t.ex. hace frío" />
+      </div>
+      <div>
+        <label for="phraseSwedish"><strong>Svenska</strong></label>
+        <input type="text" id="phraseSwedish" class="input-full" placeholder="t.ex. det är kallt" />
+      </div>
+    </div>
+
+    <div class="controls">
+      <label for="phraseStatus">Status:</label>
+      <select id="phraseStatus">
+        <option value="unknown">Okänt</option>
+        <option value="unsure">Osäkert</option>
+        <option value="known">Kan</option>
+      </select>
+      <button id="addPhraseBtn">Lägg till uttryck</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>6. Min ordbank</h2>
+
+    <div class="toolbar">
+      <label for="filterStatus">Filtrera status:</label>
+      <select id="filterStatus">
+        <option value="all">Alla</option>
+        <option value="unknown">Okända</option>
+        <option value="unsure">Osäkra</option>
+        <option value="known">Kan</option>
+      </select>
+
+      <button id="exportBtn">Exportera ordbank</button>
+      <label for="importFile" class="file-input-label">Importera ordbank</label>
+      <input type="file" id="importFile" accept=".json" />
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Spanska</th>
+          <th>Typ</th>
+          <th>Status</th>
+          <th>Svenska</th>
+        </tr>
+      </thead>
+      <tbody id="wordBankBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>7. Glosträning</h2>
+
+    <div class="controls">
+      <label for="trainingDirection">Riktning:</label>
+      <select id="trainingDirection">
+        <option value="es-sv">Spanska → Svenska</option>
+        <option value="sv-es">Svenska → Spanska</option>
+      </select>
+
+      <label for="trainingFilter">Träna:</label>
+      <select id="trainingFilter">
+        <option value="all">Alla med översättning</option>
+        <option value="unknown-unsure">Bara okända och osäkra</option>
+        <option value="unknown">Bara okända</option>
+        <option value="unsure">Bara osäkra</option>
+        <option value="known">Bara kan</option>
+      </select>
+
+      <button id="startTrainingBtn">Starta träning</button>
+    </div>
+
+    <div id="trainingBox" class="training-box hidden">
+      <div class="small" id="trainingProgress"></div>
+      <div class="training-word" id="trainingWord">-</div>
+
+      <input
+        type="text"
+        id="trainingInput"
+        class="input-full"
+        placeholder="Skriv ditt svar här"
+      />
+
+      <div class="controls">
+        <button id="checkAnswerBtn">Kontrollera</button>
+        <button id="nextWordBtn">Nästa</button>
+        <button id="endTrainingBtn">Avsluta</button>
+      </div>
+
+      <div id="trainingFeedback" class="training-feedback"></div>
+      <div class="stats" id="trainingScore"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "ordbank_app_v4";
+
+    const textInput = document.getElementById("textInput");
+    const loadTextBtn = document.getElementById("loadTextBtn");
+    const resetMarksBtn = document.getElementById("resetMarksBtn");
+    const resetAllBtn = document.getElementById("resetAllBtn");
+    const textContainer = document.getElementById("textContainer");
+    const stats = document.getElementById("stats");
+
+    const selectedWordEl = document.getElementById("selectedWord");
+    const translationInput = document.getElementById("translationInput");
+    const saveTranslationBtn = document.getElementById("saveTranslationBtn");
+
+    const btnUnknown = document.getElementById("btnUnknown");
+    const btnUnsure = document.getElementById("btnUnsure");
+    const btnKnown = document.getElementById("btnKnown");
+    const btnClear = document.getElementById("btnClear");
+
+    const phraseSpanish = document.getElementById("phraseSpanish");
+    const phraseSwedish = document.getElementById("phraseSwedish");
+    const phraseStatus = document.getElementById("phraseStatus");
+    const addPhraseBtn = document.getElementById("addPhraseBtn");
+
+    const filterStatus = document.getElementById("filterStatus");
+    const wordBankBody = document.getElementById("wordBankBody");
+
+    const exportBtn = document.getElementById("exportBtn");
+    const importFile = document.getElementById("importFile");
+
+    const trainingDirection = document.getElementById("trainingDirection");
+    const trainingFilter = document.getElementById("trainingFilter");
+    const startTrainingBtn = document.getElementById("startTrainingBtn");
+    const trainingBox = document.getElementById("trainingBox");
+    const trainingProgress = document.getElementById("trainingProgress");
+    const trainingWord = document.getElementById("trainingWord");
+    const trainingInput = document.getElementById("trainingInput");
+    const checkAnswerBtn = document.getElementById("checkAnswerBtn");
+    const nextWordBtn = document.getElementById("nextWordBtn");
+    const endTrainingBtn = document.getElementById("endTrainingBtn");
+    const trainingFeedback = document.getElementById("trainingFeedback");
+    const trainingScore = document.getElementById("trainingScore");
+
+    let appData = {
+      text: textInput.value,
+      items: {}
+    };
+
+    let selectedItemKey = null;
+
+    let trainingItems = [];
+    let currentTrainingIndex = 0;
+    let trainingCorrect = 0;
+    let trainingChecked = false;
+
+    function normalizeWord(word) {
+      return word
+        .toLowerCase()
+        .replace(/[.,!?;:()"“”¿¡]/g, "")
+        .trim();
+    }
+
+    function normalizePhrase(text) {
+      return text
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function createKey(type, spanish) {
+      return `${type}:${normalizePhrase(spanish)}`;
+    }
+
+    function loadAppData() {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === "object") {
+          appData = {
+            text: parsed.text || textInput.value,
+            items: parsed.items || {}
+          };
+        }
+      } catch (error) {
+        console.error("Kunde inte läsa sparad data:", error);
+      }
+    }
+
+    function saveAppData() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    }
+
+    function ensureWordEntry(word) {
+      const key = createKey("word", word);
+      if (!appData.items[key]) {
+        appData.items[key] = {
+          type: "word",
+          spanish: word,
+          status: "",
+          translation: ""
+        };
+      }
+      return key;
+    }
+
+    function getStatusLabel(status) {
+      if (status === "unknown") return "Okänt";
+      if (status === "unsure") return "Osäkert";
+      if (status === "known") return "Kan";
+      return "";
+    }
+
+    function getTypeLabel(type) {
+      if (type === "word") return "Ord";
+      if (type === "phrase") return "Uttryck";
+      return "";
+    }
+
+    function setSelectedItem(key) {
+      selectedItemKey = key;
+
+      if (!key || !appData.items[key]) {
+        selectedWordEl.textContent = "Inget ord valt";
+        translationInput.value = "";
+        updateStatusButtons("");
+        return;
+      }
+
+      const item = appData.items[key];
+      selectedWordEl.textContent = item.spanish;
+      translationInput.value = item.translation || "";
+      updateStatusButtons(item.status || "");
+    }
+
+    function updateStatusButtons(status) {
+      btnUnknown.className = "status-btn";
+      btnUnsure.className = "status-btn";
+      btnKnown.className = "status-btn";
+      btnClear.className = "status-btn";
+
+      if (status === "unknown") btnUnknown.classList.add("active-unknown");
+      if (status === "unsure") btnUnsure.classList.add("active-unsure");
+      if (status === "known") btnKnown.classList.add("active-known");
+      if (status === "") btnClear.classList.add("active-none");
+    }
+
+    function setSelectedItemStatus(status) {
+      if (!selectedItemKey || !appData.items[selectedItemKey]) return;
+
+      appData.items[selectedItemKey].status = status;
+      saveAppData();
+      renderText();
+      renderWordBank();
+      renderStats();
+      setSelectedItem(selectedItemKey);
+    }
+
+    function saveTranslation() {
+      if (!selectedItemKey || !appData.items[selectedItemKey]) return;
+
+      appData.items[selectedItemKey].translation = translationInput.value.trim();
+      saveAppData();
+      renderWordBank();
+      renderStats();
+      setSelectedItem(selectedItemKey);
+    }
+
+    function addPhrase() {
+      const spanish = phraseSpanish.value.trim();
+      const swedish = phraseSwedish.value.trim();
+      const status = phraseStatus.value;
+
+      if (!spanish || !swedish) {
+        alert("Fyll i både spanska och svenska.");
+        return;
+      }
+
+      const key = createKey("phrase", spanish);
+
+      appData.items[key] = {
+        type: "phrase",
+        spanish: spanish,
+        status: status,
+        translation: swedish
+      };
+
+      saveAppData();
+      renderWordBank();
+      renderStats();
+
+      phraseSpanish.value = "";
+      phraseSwedish.value = "";
+    }
+
+    function renderText() {
+      textContainer.innerHTML = "";
+
+      const tokens = appData.text.split(/(\s+)/);
+
+      tokens.forEach(token => {
+        if (token.trim() === "") {
+          textContainer.appendChild(document.createTextNode(token));
+          return;
+        }
+
+        const clean = normalizeWord(token);
+
+        if (!clean) {
+          textContainer.appendChild(document.createTextNode(token));
+          return;
+        }
+
+        const key = ensureWordEntry(clean);
+        const item = appData.items[key];
+
+        const span = document.createElement("span");
+        span.textContent = token;
+        span.classList.add("word");
+
+        if (item && item.status) {
+          span.classList.add(item.status);
+        }
+
+        span.addEventListener("click", () => {
+          setSelectedItem(key);
+        });
+
+        textContainer.appendChild(span);
+      });
+    }
+
+    function renderStats() {
+      const items = Object.values(appData.items);
+
+      const unknownCount = items.filter(item => item.status === "unknown").length;
+      const unsureCount = items.filter(item => item.status === "unsure").length;
+      const knownCount = items.filter(item => item.status === "known").length;
+      const translatedCount = items.filter(item => (item.translation || "").trim() !== "").length;
+      const phraseCount = items.filter(item => item.type === "phrase").length;
+
+      stats.textContent =
+        `Okända: ${unknownCount} | Osäkra: ${unsureCount} | Kan: ${knownCount} | Med översättning: ${translatedCount} | Uttryck: ${phraseCount}`;
+    }
+
+    function renderWordBank() {
+      wordBankBody.innerHTML = "";
+
+      const filter = filterStatus.value;
+
+      const items = Object.entries(appData.items)
+        .map(([key, item]) => ({ key, ...item }))
+        .filter(item => {
+          if (filter === "all") return true;
+          return item.status === filter;
+        })
+        .sort((a, b) => a.spanish.localeCompare(b.spanish, "es"));
+
+      if (items.length === 0) {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td colspan="4">Ingen data att visa</td>`;
+        wordBankBody.appendChild(row);
+        return;
+      }
+
+      items.forEach(item => {
+        const row = document.createElement("tr");
+
+        let pillClass = "";
+        if (item.status === "unknown") pillClass = "unknown";
+        if (item.status === "unsure") pillClass = "unsure";
+        if (item.status === "known") pillClass = "known";
+
+        row.innerHTML = `
+          <td>${item.spanish}</td>
+          <td><span class="type-pill">${getTypeLabel(item.type)}</span></td>
+          <td>${item.status ? `<span class="status-pill ${pillClass}">${getStatusLabel(item.status)}</span>` : ""}</td>
+          <td>${item.translation || ""}</td>
+        `;
+
+        row.addEventListener("click", () => {
+          setSelectedItem(item.key);
+        });
+
+        wordBankBody.appendChild(row);
+      });
+    }
+
+    function loadText() {
+      appData.text = textInput.value.trim();
+      saveAppData();
+      renderText();
+      renderWordBank();
+      renderStats();
+      setSelectedItem(null);
+    }
+
+    function resetMarks() {
+      const confirmed = confirm("Vill du nollställa alla statusar och översättningar men behålla text och uttryck?");
+      if (!confirmed) return;
+
+      const newItems = {};
+
+      Object.entries(appData.items).forEach(([key, item]) => {
+        if (item.type === "phrase") {
+          newItems[key] = item;
+        } else {
+          newItems[key] = {
+            ...item,
+            status: "",
+            translation: ""
+          };
+        }
+      });
+
+      appData.items = newItems;
+      saveAppData();
+      renderText();
+      renderWordBank();
+      renderStats();
+      setSelectedItem(null);
+      endTraining();
+    }
+
+    function resetAll() {
+      const confirmed = confirm("Vill du nollställa exakt allt?");
+      if (!confirmed) return;
+
+      localStorage.removeItem(STORAGE_KEY);
+      appData = {
+        text: "",
+        items: {}
+      };
+      textInput.value = "";
+      renderText();
+      renderWordBank();
+      renderStats();
+      setSelectedItem(null);
+      endTraining();
+    }
+
+    function exportData() {
+      const exportObject = {
+        version: 4,
+        exportedAt: new Date().toISOString(),
+        data: appData
+      };
+
+      const blob = new Blob([JSON.stringify(exportObject, null, 2)], {
+        type: "application/json"
+      });
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const dateString = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `ordbank-${dateString}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+
+          if (!imported.data || typeof imported.data !== "object") {
+            alert("Filen verkar inte ha rätt format.");
+            return;
+          }
+
+          appData = {
+            text: imported.data.text || "",
+            items: imported.data.items || {}
+          };
+
+          textInput.value = appData.text;
+          saveAppData();
+          renderText();
+          renderWordBank();
+          renderStats();
+          setSelectedItem(null);
+          endTraining();
+
+          alert("Ordbanken har importerats.");
+        } catch (error) {
+          alert("Kunde inte läsa filen. Kontrollera att det är en giltig JSON-fil.");
+          console.error(error);
+        } finally {
+          importFile.value = "";
+        }
+      };
+
+      reader.readAsText(file);
+    }
+
+    function getTrainingCandidates() {
+      return Object.entries(appData.items)
+        .map(([key, item]) => ({
+          key,
+          ...item,
+          statusNormalized: (item.status || "").trim(),
+          translationNormalized: (item.translation || "").trim()
+        }))
+        .filter(item => {
+          if (item.translationNormalized === "") return false;
+
+          const filter = trainingFilter.value;
+
+          if (filter === "all") {
+            return true;
+          }
+
+          if (filter === "unknown-unsure") {
+            return item.statusNormalized === "unknown" || item.statusNormalized === "unsure";
+          }
+
+          if (filter === "unknown") {
+            return item.statusNormalized === "unknown";
+          }
+
+          if (filter === "unsure") {
+            return item.statusNormalized === "unsure";
+          }
+
+          if (filter === "known") {
+            return item.statusNormalized === "known";
+          }
+
+          return false;
+        });
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function startTraining() {
+      trainingItems = getTrainingCandidates();
+
+      if (trainingItems.length === 0) {
+        alert("Det finns inga ord eller uttryck att träna med detta urval. Kontrollera att de har både status och sparad översättning.");
+        return;
+      }
+
+      shuffle(trainingItems);
+      currentTrainingIndex = 0;
+      trainingCorrect = 0;
+      trainingChecked = false;
+
+      trainingBox.classList.remove("hidden");
+      showTrainingWord();
+      trainingInput.focus();
+    }
+
+    function showTrainingWord() {
+      if (currentTrainingIndex >= trainingItems.length) {
+        trainingProgress.textContent = "Klar";
+        trainingWord.textContent = "Träningen är klar";
+        trainingInput.value = "";
+        trainingFeedback.textContent = `Slutresultat: ${trainingCorrect} av ${trainingItems.length} rätt.`;
+        trainingFeedback.className = "training-feedback";
+        trainingScore.textContent = "";
+        trainingChecked = true;
+        return;
+      }
+
+      const item = trainingItems[currentTrainingIndex];
+
+      trainingProgress.textContent = `Post ${currentTrainingIndex + 1} av ${trainingItems.length} | ${getTypeLabel(item.type)} | Status: ${getStatusLabel(item.statusNormalized)}`;
+
+      if (trainingDirection.value === "es-sv") {
+        trainingWord.textContent = item.spanish;
+      } else {
+        trainingWord.textContent = item.translation;
+      }
+
+      trainingInput.value = "";
+      trainingFeedback.textContent = "";
+      trainingFeedback.className = "training-feedback";
+      trainingScore.textContent = `Poäng: ${trainingCorrect} / ${trainingItems.length}`;
+      trainingChecked = false;
+    }
+
+    function checkTrainingAnswer() {
+      if (currentTrainingIndex >= trainingItems.length) return;
+      if (trainingChecked) return;
+
+      const item = trainingItems[currentTrainingIndex];
+
+      let correctAnswer = "";
+      if (trainingDirection.value === "es-sv") {
+        correctAnswer = item.translation;
+      } else {
+        correctAnswer = item.spanish;
+      }
+
+      const userAnswer = normalizePhrase(trainingInput.value);
+      const normalizedCorrect = normalizePhrase(correctAnswer);
+
+      if (userAnswer === normalizedCorrect) {
+        trainingCorrect++;
+        trainingFeedback.textContent = "Rätt";
+        trainingFeedback.className = "training-feedback correct";
+      } else {
+        trainingFeedback.textContent = `Fel. Rätt svar: ${correctAnswer}`;
+        trainingFeedback.className = "training-feedback wrong";
+      }
+
+      trainingScore.textContent = `Poäng: ${trainingCorrect} / ${trainingItems.length}`;
+      trainingChecked = true;
+    }
+
+    function nextTrainingWord() {
+      if (currentTrainingIndex >= trainingItems.length) return;
+      currentTrainingIndex++;
+      showTrainingWord();
+      trainingInput.focus();
+    }
+
+    function endTraining() {
+      trainingItems = [];
+      currentTrainingIndex = 0;
+      trainingCorrect = 0;
+      trainingChecked = false;
+      trainingBox.classList.add("hidden");
+      trainingInput.value = "";
+      trainingFeedback.textContent = "";
+      trainingScore.textContent = "";
+      trainingProgress.textContent = "";
+      trainingWord.textContent = "-";
+    }
+
+    loadTextBtn.addEventListener("click", loadText);
+    resetMarksBtn.addEventListener("click", resetMarks);
+    resetAllBtn.addEventListener("click", resetAll);
+
+    btnUnknown.addEventListener("click", () => setSelectedItemStatus("unknown"));
+    btnUnsure.addEventListener("click", () => setSelectedItemStatus("unsure"));
+    btnKnown.addEventListener("click", () => setSelectedItemStatus("known"));
+    btnClear.addEventListener("click", () => setSelectedItemStatus(""));
+
+    saveTranslationBtn.addEventListener("click", saveTranslation);
+    addPhraseBtn.addEventListener("click", addPhrase);
+
+    filterStatus.addEventListener("change", renderWordBank);
+
+    exportBtn.addEventListener("click", exportData);
+    importFile.addEventListener("change", importData);
+
+    startTrainingBtn.addEventListener("click", startTraining);
+    checkAnswerBtn.addEventListener("click", checkTrainingAnswer);
+    nextWordBtn.addEventListener("click", nextTrainingWord);
+    endTrainingBtn.addEventListener("click", endTraining);
+
+    trainingInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        if (!trainingChecked) {
+          checkTrainingAnswer();
+        } else {
+          nextTrainingWord();
+        }
+      }
+    });
+
+    loadAppData();
+    textInput.value = appData.text;
+    renderText();
+    renderWordBank();
+    renderStats();
+    setSelectedItem(null);
+  </script>
+</body>
+</html>
