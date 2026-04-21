@@ -4,16 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ordbank-app</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --color-unreviewed: #e6eef7;
-      --color-unknown: #f8caca;
-      --color-unsure: #fff0b8;
-      --color-known: #cfeccf;
+      --color-unknown: #f4c7c7;
+      --color-unsure: #f7e7a9;
+      --color-known: #cde7d0;
       --color-border: #d9d9d9;
       --color-text: #222;
       --color-bg: #f5f6f8;
       --color-card: #ffffff;
+      --panel-height: 220px;
     }
 
     * {
@@ -21,10 +23,10 @@
     }
 
     body {
-      font-family: Arial, sans-serif;
-      max-width: 1280px;
-      margin: 24px auto;
-      padding: 16px;
+      font-family: 'Inter', sans-serif;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px 16px calc(var(--panel-height) + 32px);
       line-height: 1.6;
       background: var(--color-bg);
       color: var(--color-text);
@@ -42,42 +44,10 @@
 
     .card {
       background: var(--color-card);
-      border-radius: 12px;
-      padding: 18px;
+      border-radius: 14px;
+      padding: 20px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.8fr 420px;
-      gap: 20px;
-      align-items: start;
-    }
-
-    @media (max-width: 1024px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .main-column {
-      min-width: 0;
-    }
-
-    .side-column {
-      min-width: 0;
-    }
-
-    .sticky-panel {
-      position: sticky;
-      top: 16px;
-    }
-
-    @media (max-width: 1024px) {
-      .sticky-panel {
-        position: static;
-      }
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
     textarea {
@@ -88,6 +58,7 @@
       border: 1px solid #ccc;
       font-size: 16px;
       resize: vertical;
+      font-family: 'Inter', sans-serif;
     }
 
     .controls,
@@ -115,7 +86,7 @@
 
     .stat-box strong {
       display: block;
-      font-size: 18px;
+      font-size: 20px;
       margin-bottom: 2px;
     }
 
@@ -140,6 +111,7 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
+      font-family: 'Inter', sans-serif;
     }
 
     button {
@@ -147,6 +119,7 @@
       color: white;
       border: none;
       cursor: pointer;
+      font-weight: 600;
     }
 
     button:hover {
@@ -183,86 +156,42 @@
       background: var(--color-known);
     }
 
+    .text-wrapper {
+      background: white;
+      padding: 24px;
+      border-radius: 14px;
+    }
+
+    .text-area {
+      max-width: 700px;
+      margin: 0 auto;
+      font-size: 24px;
+      line-height: 2.2;
+    }
+
     .word {
       display: inline-block;
       cursor: pointer;
-      padding: 2px 4px;
+      padding: 2px 5px;
       margin-right: 2px;
       margin-bottom: 2px;
-      border-radius: 5px;
+      border-radius: 6px;
       transition: 0.15s ease;
       user-select: none;
     }
 
     .word:hover {
       outline: 1px solid #777;
+      background: rgba(0,0,0,0.04);
     }
 
-    .text-area {
-      font-size: 22px;
-      line-height: 2.1;
+    .word.active {
+      outline: 2px solid #333;
     }
 
     .small {
       font-size: 14px;
       color: #555;
-    }
-
-    .selected-word-box {
-      border: 1px solid var(--color-border);
-      border-radius: 10px;
-      padding: 14px;
-      background: #fafafa;
-    }
-
-    .selected-word {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 8px;
-      word-break: break-word;
-    }
-
-    .status-buttons {
-      margin: 10px 0;
-    }
-
-    .status-btn {
-      color: #222;
-      background: #eee;
-      border: 1px solid #ccc;
-    }
-
-    .status-btn.active-unreviewed {
-      background: var(--color-unreviewed);
-      font-weight: bold;
-    }
-
-    .status-btn.active-unknown {
-      background: var(--color-unknown);
-      font-weight: bold;
-    }
-
-    .status-btn.active-unsure {
-      background: var(--color-unsure);
-      font-weight: bold;
-    }
-
-    .status-btn.active-known {
-      background: var(--color-known);
-      font-weight: bold;
-    }
-
-    .translation-input,
-    .input-full {
-      width: 100%;
-      margin-top: 8px;
-    }
-
-    .save-hint {
-      min-height: 20px;
-      margin-top: 8px;
-      font-size: 13px;
-      color: #1d6f2c;
     }
 
     .sub-grid {
@@ -271,10 +200,16 @@
       gap: 16px;
     }
 
-    @media (max-width: 900px) {
+    @media (max-width: 700px) {
       .sub-grid {
         grid-template-columns: 1fr;
       }
+    }
+
+    .input-full,
+    .translation-input {
+      width: 100%;
+      margin-top: 8px;
     }
 
     table {
@@ -289,6 +224,7 @@
       padding: 10px;
       text-align: left;
       vertical-align: top;
+      font-size: 14px;
     }
 
     th {
@@ -315,6 +251,7 @@
       color: white;
       cursor: pointer;
       font-size: 14px;
+      font-weight: 600;
     }
 
     .file-input-label:hover {
@@ -325,397 +262,270 @@
       display: none;
     }
 
-    .training-box {
-      margin-top: 15px;
-      border: 1px solid var(--color-border);
-      border-radius: 10px;
-      padding: 15px;
-      background: #fafafa;
+    .bottom-panel {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: white;
+      border-top: 2px solid #ddd;
+      box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+      z-index: 1500;
+      padding: 12px 16px 14px;
     }
 
-    .training-word {
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 12px;
+    .bottom-panel-inner {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .bottom-panel-top {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 800px) {
+      .bottom-panel-top {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .selected-word {
+      font-size: 22px;
+      font-weight: 700;
       word-break: break-word;
+      margin-bottom: 4px;
     }
 
-    .training-feedback {
-      margin-top: 12px;
-      font-weight: bold;
-      min-height: 24px;
+    .selected-meta {
+      font-size: 13px;
+      color: #666;
+      min-height: 18px;
+      margin-bottom: 8px;
     }
 
-    .training-feedback.correct {
+    .status-buttons {
+      margin: 8px 0;
+    }
+
+    .status-btn {
+      color: #222;
+      background: #eee;
+      border: 1px solid #ccc;
+    }
+
+    .status-btn.active-unreviewed {
+      background: var(--color-unreviewed);
+      font-weight: 700;
+    }
+
+    .status-btn.active-unknown {
+      background: var(--color-unknown);
+      font-weight: 700;
+    }
+
+    .status-btn.active-unsure {
+      background: var(--color-unsure);
+      font-weight: 700;
+    }
+
+    .status-btn.active-known {
+      background: var(--color-known);
+      font-weight: 700;
+    }
+
+    .save-hint {
+      min-height: 18px;
+      margin-top: 6px;
+      font-size: 13px;
       color: #1d6f2c;
     }
 
-    .training-feedback.wrong {
-      color: #9b1c1c;
+    .panel-help {
+      font-size: 13px;
+      color: #666;
+      margin-top: 4px;
     }
 
     .hidden {
       display: none;
     }
-
-    .context-menu {
-      position: absolute;
-      display: none;
-      min-width: 180px;
-      background: white;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-      z-index: 2000;
-      overflow: hidden;
-    }
-
-    .context-menu button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      border: none;
-      border-radius: 0;
-      background: white;
-      color: #222;
-      padding: 12px 14px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .context-menu button:hover {
-      background: #f2f2f2;
-    }
-
-    .context-menu button.menu-unreviewed:hover {
-      background: var(--color-unreviewed);
-    }
-
-    .context-menu button.menu-unknown:hover {
-      background: var(--color-unknown);
-    }
-
-    .context-menu button.menu-unsure:hover {
-      background: var(--color-unsure);
-    }
-
-    .context-menu button.menu-known:hover {
-      background: var(--color-known);
-    }
-
-    .muted {
-      color: #666;
-    }
-
-    .flashcard {
-      border: 1px solid var(--color-border);
-      border-radius: 14px;
-      padding: 20px;
-      background: white;
-      min-height: 180px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .flashcard-side-label {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 8px;
-    }
-
-    .flashcard-text {
-      font-size: 30px;
-      font-weight: bold;
-      text-align: center;
-      word-break: break-word;
-    }
-
-    .flashcard-answer {
-      margin-top: 18px;
-      font-size: 24px;
-      text-align: center;
-      word-break: break-word;
-    }
   </style>
 </head>
 <body>
   <h1>Spansk text med personlig ordbank</h1>
-  <div class="version">Version: v7 intern flashcard-sida</div>
+  <div class="version">Version: v8 textfokus + bottenpanel + utan interna flashcards</div>
 
-  <div class="layout">
-    <div class="main-column">
-      <div class="card">
-        <h2>1. Lägg in text</h2>
-        <p class="small">
-          Vänsterklick på ett ord öppnar panelen. Högerklick öppnar snabbmenyn för status. Obehandlade ord är gråblå från början.
-        </p>
-        <textarea id="textInput">Hola, me llamo Ana y vivo en Madrid con mi familia. Todos los días voy a la escuela por la mañana. Me gusta leer libros, escuchar música y hablar con mis amigos. Después de la escuela, como en casa y hago mis tareas. A veces hace frío en invierno, pero en verano hace calor.</textarea>
-        <div class="controls">
-          <button id="loadTextBtn">Ladda text</button>
-          <button id="resetMarksBtn">Nollställ markeringar</button>
-          <button id="resetAllBtn">Nollställ allt</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>2. Översikt</h2>
-        <div class="legend">
-          <span class="unreviewed">obehandlat</span>
-          <span class="unknown">okänt</span>
-          <span class="unsure">osäkert</span>
-          <span class="known">kan</span>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-box">
-            <strong id="statTotal">0</strong>
-            Totalt
-          </div>
-          <div class="stat-box stat-unreviewed">
-            <strong id="statUnreviewed">0</strong>
-            Obehandlade
-          </div>
-          <div class="stat-box stat-unknown">
-            <strong id="statUnknown">0</strong>
-            Okända
-          </div>
-          <div class="stat-box stat-unsure">
-            <strong id="statUnsure">0</strong>
-            Osäkra
-          </div>
-          <div class="stat-box stat-known">
-            <strong id="statKnown">0</strong>
-            Kan
-          </div>
-          <div class="stat-box">
-            <strong id="statKnownPercent">0%</strong>
-            Andel kan
-          </div>
-        </div>
-
-        <div class="small" id="statsLine" style="margin-top:10px;"></div>
-      </div>
-
-      <div class="card">
-        <h2>3. Text</h2>
-        <div id="textContainer" class="text-area"></div>
-      </div>
-
-      <div class="card">
-        <h2>4. Lägg till uttryck</h2>
-        <p class="small">
-          Använd detta för flerordsuttryck, till exempel “hace frío”.
-        </p>
-
-        <div class="sub-grid">
-          <div>
-            <label for="phraseSpanish"><strong>Spanska</strong></label>
-            <input type="text" id="phraseSpanish" class="input-full" placeholder="t.ex. hace frío" />
-          </div>
-          <div>
-            <label for="phraseSwedish"><strong>Svenska</strong></label>
-            <input type="text" id="phraseSwedish" class="input-full" placeholder="t.ex. det är kallt" />
-          </div>
-        </div>
-
-        <div class="controls">
-          <label for="phraseStatus">Status:</label>
-          <select id="phraseStatus">
-            <option value="unknown">Okänt</option>
-            <option value="unsure">Osäkert</option>
-            <option value="known">Kan</option>
-          </select>
-          <button id="addPhraseBtn">Lägg till uttryck</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>5. Min ordbank</h2>
-
-        <div class="toolbar">
-          <label for="filterStatus">Filtrera status:</label>
-          <select id="filterStatus">
-            <option value="all">Alla</option>
-            <option value="unreviewed">Obehandlade</option>
-            <option value="unknown">Okända</option>
-            <option value="unsure">Osäkra</option>
-            <option value="known">Kan</option>
-          </select>
-        </div>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Spanska</th>
-              <th>Typ</th>
-              <th>Status</th>
-              <th>Svenska</th>
-            </tr>
-          </thead>
-          <tbody id="wordBankBody"></tbody>
-        </table>
-      </div>
-
-      <div class="card">
-        <h2>6. Glosträning</h2>
-
-        <div class="controls">
-          <label for="trainingDirection">Riktning:</label>
-          <select id="trainingDirection">
-            <option value="es-sv">Spanska → Svenska</option>
-            <option value="sv-es">Svenska → Spanska</option>
-          </select>
-
-          <label for="trainingFilter">Träna:</label>
-          <select id="trainingFilter">
-            <option value="all">Alla med översättning</option>
-            <option value="unknown-unsure">Bara okända och osäkra</option>
-            <option value="unknown">Bara okända</option>
-            <option value="unsure">Bara osäkra</option>
-            <option value="known">Bara kan</option>
-          </select>
-
-          <button id="startTrainingBtn">Starta skrivträning</button>
-        </div>
-
-        <div id="trainingBox" class="training-box hidden">
-          <div class="small" id="trainingProgress"></div>
-          <div class="training-word" id="trainingWord">-</div>
-
-          <input
-            type="text"
-            id="trainingInput"
-            class="input-full"
-            placeholder="Skriv ditt svar här"
-          />
-
-          <div class="controls">
-            <button id="checkAnswerBtn">Kontrollera</button>
-            <button id="nextWordBtn">Nästa</button>
-            <button id="endTrainingBtn">Avsluta</button>
-          </div>
-
-          <div id="trainingFeedback" class="training-feedback"></div>
-          <div class="stats" id="trainingScore"></div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>7. Flashcards i appen</h2>
-
-        <div class="controls">
-          <label for="flashcardFilter">Urval:</label>
-          <select id="flashcardFilter">
-            <option value="all">Alla med översättning</option>
-            <option value="unknown-unsure">Bara okända och osäkra</option>
-            <option value="unknown">Bara okända</option>
-            <option value="unsure">Bara osäkra</option>
-            <option value="known">Bara kan</option>
-          </select>
-
-          <label for="flashcardDirection">Visa först:</label>
-          <select id="flashcardDirection">
-            <option value="es-first">Spanska först</option>
-            <option value="sv-first">Svenska först</option>
-          </select>
-
-          <button id="startFlashcardsBtn">Starta flashcards</button>
-        </div>
-
-        <div id="flashcardBox" class="training-box hidden">
-          <div class="small" id="flashcardProgress"></div>
-
-          <div class="flashcard">
-            <div class="flashcard-side-label" id="flashcardSideLabel">Framsida</div>
-            <div class="flashcard-text" id="flashcardFront">-</div>
-            <div class="flashcard-answer hidden" id="flashcardBack">-</div>
-          </div>
-
-          <div class="controls" style="margin-top: 14px;">
-            <button id="showFlashcardAnswerBtn">Visa svar</button>
-            <button id="nextFlashcardBtn">Nästa kort</button>
-            <button id="endFlashcardsBtn">Avsluta</button>
-          </div>
-
-          <div class="controls" style="margin-top: 14px;">
-            <button id="flashcardSetUnknownBtn">Kan inte</button>
-            <button id="flashcardSetUnsureBtn">Osäker</button>
-            <button id="flashcardSetKnownBtn">Kan</button>
-          </div>
-
-          <div class="small" id="flashcardMeta" style="margin-top:10px;"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="side-column">
-      <div class="sticky-panel">
-        <div class="card">
-          <h2>Ordpanel</h2>
-          <div class="selected-word-box">
-            <div id="selectedWord" class="selected-word">Inget ord valt</div>
-            <div class="small muted" id="selectedMeta">Välj ett ord eller uttryck</div>
-
-            <div class="small" style="margin-top:10px;">Status</div>
-            <div class="status-buttons">
-              <button class="status-btn" id="btnUnreviewed">Obehandlat</button>
-              <button class="status-btn" id="btnUnknown">Okänt</button>
-              <button class="status-btn" id="btnUnsure">Osäkert</button>
-              <button class="status-btn" id="btnKnown">Kan</button>
-            </div>
-
-            <div class="small">Egen svensk översättning</div>
-            <input
-              type="text"
-              id="translationInput"
-              class="translation-input"
-              placeholder="Skriv översättning här"
-            />
-            <div class="controls">
-              <button id="saveTranslationBtn">Spara översättning</button>
-            </div>
-
-            <div id="saveHint" class="save-hint"></div>
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Ordbanksfil</h2>
-          <p class="small">
-            Sparar bara ordbanken, inte själva texten.
-          </p>
-          <div class="controls">
-            <button id="saveWorkBtn">Spara min ordbank</button>
-            <label for="importFile" class="file-input-label">Läs in min ordbank</label>
-            <input type="file" id="importFile" accept=".json" />
-          </div>
-        </div>
-
-        <div class="card">
-          <h2>Flashcards ut</h2>
-          <p class="small">
-            Exporterar till TSV-format för Quizlet, Anki, Excel eller Google Sheets.
-          </p>
-          <div class="controls">
-            <button id="exportFlashcardsAllBtn">Exportera flashcards: alla</button>
-            <button id="exportFlashcardsFocusedBtn">Exportera flashcards: okända + osäkra</button>
-          </div>
-        </div>
-      </div>
+  <div class="card">
+    <h2>1. Lägg in text</h2>
+    <p class="small">
+      Tryck eller klicka på ett ord i texten för att öppna ordpanelen längst ner. Där väljer du status och kan skriva översättning.
+    </p>
+    <textarea id="textInput">Hola, me llamo Ana y vivo en Madrid con mi familia. Todos los días voy a la escuela por la mañana. Me gusta leer libros, escuchar música y hablar con mis amigos. Después de la escuela, como en casa y hago mis tareas. A veces hace frío en invierno, pero en verano hace calor.</textarea>
+    <div class="controls">
+      <button id="loadTextBtn">Ladda text</button>
+      <button id="resetMarksBtn">Nollställ markeringar</button>
+      <button id="resetAllBtn">Nollställ allt</button>
     </div>
   </div>
 
-  <div id="contextMenu" class="context-menu">
-    <button class="menu-unreviewed" data-status="unreviewed">Obehandlat</button>
-    <button class="menu-unknown" data-status="unknown">Okänt</button>
-    <button class="menu-unsure" data-status="unsure">Osäkert</button>
-    <button class="menu-known" data-status="known">Kan</button>
+  <div class="card">
+    <h2>2. Översikt</h2>
+    <div class="legend">
+      <span class="unreviewed">obehandlat</span>
+      <span class="unknown">okänt</span>
+      <span class="unsure">osäkert</span>
+      <span class="known">kan</span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box">
+        <strong id="statTotal">0</strong>
+        Totalt
+      </div>
+      <div class="stat-box stat-unreviewed">
+        <strong id="statUnreviewed">0</strong>
+        Obehandlade
+      </div>
+      <div class="stat-box stat-unknown">
+        <strong id="statUnknown">0</strong>
+        Okända
+      </div>
+      <div class="stat-box stat-unsure">
+        <strong id="statUnsure">0</strong>
+        Osäkra
+      </div>
+      <div class="stat-box stat-known">
+        <strong id="statKnown">0</strong>
+        Kan
+      </div>
+      <div class="stat-box">
+        <strong id="statKnownPercent">0%</strong>
+        Andel kan
+      </div>
+    </div>
+
+    <div class="small" id="statsLine" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. Text</h2>
+    <div class="text-wrapper">
+      <div id="textContainer" class="text-area"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>4. Lägg till uttryck</h2>
+    <p class="small">
+      Använd detta för flerordsuttryck, till exempel “hace frío”.
+    </p>
+
+    <div class="sub-grid">
+      <div>
+        <label for="phraseSpanish"><strong>Spanska</strong></label>
+        <input type="text" id="phraseSpanish" class="input-full" placeholder="t.ex. hace frío" />
+      </div>
+      <div>
+        <label for="phraseSwedish"><strong>Svenska</strong></label>
+        <input type="text" id="phraseSwedish" class="input-full" placeholder="t.ex. det är kallt" />
+      </div>
+    </div>
+
+    <div class="controls">
+      <label for="phraseStatus">Status:</label>
+      <select id="phraseStatus">
+        <option value="unknown">Okänt</option>
+        <option value="unsure">Osäkert</option>
+        <option value="known">Kan</option>
+      </select>
+      <button id="addPhraseBtn">Lägg till uttryck</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>5. Min ordbank</h2>
+
+    <div class="toolbar">
+      <label for="filterStatus">Filtrera status:</label>
+      <select id="filterStatus">
+        <option value="all">Alla</option>
+        <option value="unreviewed">Obehandlade</option>
+        <option value="unknown">Okända</option>
+        <option value="unsure">Osäkra</option>
+        <option value="known">Kan</option>
+      </select>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Spanska</th>
+          <th>Typ</th>
+          <th>Status</th>
+          <th>Svenska</th>
+        </tr>
+      </thead>
+      <tbody id="wordBankBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>6. Ordbanksfil och export</h2>
+    <p class="small">
+      Spara ordbanken som JSON för att fortsätta senare. Exportera TSV om du vill använda flashcards i annat verktyg.
+    </p>
+
+    <div class="controls">
+      <button id="saveWorkBtn">Spara min ordbank</button>
+      <label for="importFile" class="file-input-label">Läs in min ordbank</label>
+      <input type="file" id="importFile" accept=".json" />
+    </div>
+
+    <div class="controls" style="margin-top:14px;">
+      <button id="exportFlashcardsAllBtn">Exportera flashcards: alla</button>
+      <button id="exportFlashcardsFocusedBtn">Exportera flashcards: okända + osäkra</button>
+    </div>
+  </div>
+
+  <div class="bottom-panel">
+    <div class="bottom-panel-inner">
+      <div class="bottom-panel-top">
+        <div>
+          <div id="selectedWord" class="selected-word">Inget ord valt</div>
+          <div id="selectedMeta" class="selected-meta">Tryck på ett ord i texten.</div>
+          <div class="panel-help">Målet är att arbeta direkt i texten utan att behöva bläddra upp och ner.</div>
+        </div>
+
+        <div>
+          <div class="small">Status</div>
+          <div class="status-buttons">
+            <button class="status-btn" id="btnUnreviewed">Obehandlat</button>
+            <button class="status-btn" id="btnUnknown">Okänt</button>
+            <button class="status-btn" id="btnUnsure">Osäkert</button>
+            <button class="status-btn" id="btnKnown">Kan</button>
+          </div>
+
+          <div class="small">Egen svensk översättning</div>
+          <input
+            type="text"
+            id="translationInput"
+            class="translation-input"
+            placeholder="Skriv översättning här"
+          />
+          <div class="controls">
+            <button id="saveTranslationBtn">Spara översättning</button>
+          </div>
+          <div id="saveHint" class="save-hint"></div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    const STORAGE_KEY = "ordbank_app_v7";
+    const STORAGE_KEY = "ordbank_app_v8";
 
     const textInput = document.getElementById("textInput");
     const loadTextBtn = document.getElementById("loadTextBtn");
@@ -755,53 +565,12 @@
     const exportFlashcardsAllBtn = document.getElementById("exportFlashcardsAllBtn");
     const exportFlashcardsFocusedBtn = document.getElementById("exportFlashcardsFocusedBtn");
 
-    const trainingDirection = document.getElementById("trainingDirection");
-    const trainingFilter = document.getElementById("trainingFilter");
-    const startTrainingBtn = document.getElementById("startTrainingBtn");
-    const trainingBox = document.getElementById("trainingBox");
-    const trainingProgress = document.getElementById("trainingProgress");
-    const trainingWord = document.getElementById("trainingWord");
-    const trainingInput = document.getElementById("trainingInput");
-    const checkAnswerBtn = document.getElementById("checkAnswerBtn");
-    const nextWordBtn = document.getElementById("nextWordBtn");
-    const endTrainingBtn = document.getElementById("endTrainingBtn");
-    const trainingFeedback = document.getElementById("trainingFeedback");
-    const trainingScore = document.getElementById("trainingScore");
-
-    const flashcardFilter = document.getElementById("flashcardFilter");
-    const flashcardDirection = document.getElementById("flashcardDirection");
-    const startFlashcardsBtn = document.getElementById("startFlashcardsBtn");
-    const flashcardBox = document.getElementById("flashcardBox");
-    const flashcardProgress = document.getElementById("flashcardProgress");
-    const flashcardSideLabel = document.getElementById("flashcardSideLabel");
-    const flashcardFront = document.getElementById("flashcardFront");
-    const flashcardBack = document.getElementById("flashcardBack");
-    const showFlashcardAnswerBtn = document.getElementById("showFlashcardAnswerBtn");
-    const nextFlashcardBtn = document.getElementById("nextFlashcardBtn");
-    const endFlashcardsBtn = document.getElementById("endFlashcardsBtn");
-    const flashcardSetUnknownBtn = document.getElementById("flashcardSetUnknownBtn");
-    const flashcardSetUnsureBtn = document.getElementById("flashcardSetUnsureBtn");
-    const flashcardSetKnownBtn = document.getElementById("flashcardSetKnownBtn");
-    const flashcardMeta = document.getElementById("flashcardMeta");
-
-    const contextMenu = document.getElementById("contextMenu");
-
     let appData = {
       text: textInput.value,
       items: {}
     };
 
     let selectedItemKey = null;
-    let contextTargetKey = null;
-
-    let trainingItems = [];
-    let currentTrainingIndex = 0;
-    let trainingCorrect = 0;
-    let trainingChecked = false;
-
-    let flashcardItems = [];
-    let currentFlashcardIndex = 0;
-    let flashcardAnswerShown = false;
 
     function normalizeWord(word) {
       return word
@@ -880,9 +649,11 @@
     function setSelectedItem(key) {
       selectedItemKey = key;
 
+      document.querySelectorAll(".word.active").forEach(el => el.classList.remove("active"));
+
       if (!key || !appData.items[key]) {
         selectedWordEl.textContent = "Inget ord valt";
-        selectedMeta.textContent = "Välj ett ord eller uttryck";
+        selectedMeta.textContent = "Tryck på ett ord i texten.";
         translationInput.value = "";
         updateStatusButtons("");
         return;
@@ -893,6 +664,11 @@
       selectedMeta.textContent = `${getTypeLabel(item.type)} • ${getStatusLabel(item.status)}`;
       translationInput.value = item.translation || "";
       updateStatusButtons(item.status || "");
+
+      const activeWord = document.querySelector(`.word[data-key="${CSS.escape(key)}"]`);
+      if (activeWord) {
+        activeWord.classList.add("active");
+      }
     }
 
     function updateStatusButtons(status) {
@@ -995,14 +771,6 @@
 
         span.addEventListener("click", () => {
           setSelectedItem(key);
-          hideContextMenu();
-        });
-
-        span.addEventListener("contextmenu", (event) => {
-          event.preventDefault();
-          contextTargetKey = key;
-          setSelectedItem(key);
-          showContextMenu(event.pageX, event.pageY);
         });
 
         textContainer.appendChild(span);
@@ -1065,7 +833,6 @@
 
         row.addEventListener("click", () => {
           setSelectedItem(item.key);
-          hideContextMenu();
         });
 
         wordBankBody.appendChild(row);
@@ -1079,7 +846,6 @@
       renderWordBank();
       renderStats();
       setSelectedItem(null);
-      hideContextMenu();
     }
 
     function resetMarks() {
@@ -1101,9 +867,6 @@
       renderWordBank();
       renderStats();
       setSelectedItem(null);
-      endTraining();
-      endFlashcards();
-      hideContextMenu();
     }
 
     function resetAll() {
@@ -1120,14 +883,11 @@
       renderWordBank();
       renderStats();
       setSelectedItem(null);
-      endTraining();
-      endFlashcards();
-      hideContextMenu();
     }
 
     function exportWorkFile() {
       const exportObject = {
-        version: 7,
+        version: 8,
         exportedAt: new Date().toISOString(),
         data: {
           items: appData.items
@@ -1140,9 +900,8 @@
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      const dateString = new Date().toISOString().slice(0, 10);
       a.href = url;
-      a.download = `min-ordbank-${dateString}.json`;
+      a.download = "min-ordbank.json";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -1171,9 +930,6 @@
           renderWordBank();
           renderStats();
           setSelectedItem(null);
-          endTraining();
-          endFlashcards();
-          hideContextMenu();
 
           alert("Ordbanken har lästs in.");
         } catch (error) {
@@ -1213,274 +969,13 @@
       const blob = new Blob([content], { type: "text/tab-separated-values;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      const dateString = new Date().toISOString().slice(0, 10);
-      const suffix = mode === "focused" ? "okanda-osakra" : "alla";
       a.href = url;
-      a.download = `flashcards-${suffix}-${dateString}.tsv`;
+      a.download = mode === "focused" ? "flashcards-okanda-osakra.tsv" : "flashcards-alla.tsv";
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
-
-    function getTrainingCandidates() {
-      return Object.entries(appData.items)
-        .map(([key, item]) => ({
-          key,
-          ...item,
-          statusNormalized: (item.status || "").trim(),
-          translationNormalized: (item.translation || "").trim()
-        }))
-        .filter(item => item.translationNormalized !== "")
-        .filter(item => {
-          const filter = trainingFilter.value;
-
-          if (filter === "all") return true;
-          if (filter === "unknown-unsure") {
-            return item.statusNormalized === "unknown" || item.statusNormalized === "unsure";
-          }
-          if (filter === "unknown") return item.statusNormalized === "unknown";
-          if (filter === "unsure") return item.statusNormalized === "unsure";
-          if (filter === "known") return item.statusNormalized === "known";
-          return false;
-        });
-    }
-
-    function getFlashcardCandidates() {
-      return Object.entries(appData.items)
-        .map(([key, item]) => ({
-          key,
-          ...item
-        }))
-        .filter(item => (item.translation || "").trim() !== "")
-        .filter(item => {
-          const filter = flashcardFilter.value;
-
-          if (filter === "all") return true;
-          if (filter === "unknown-unsure") {
-            return item.status === "unknown" || item.status === "unsure";
-          }
-          if (filter === "unknown") return item.status === "unknown";
-          if (filter === "unsure") return item.status === "unsure";
-          if (filter === "known") return item.status === "known";
-          return false;
-        });
-    }
-
-    function shuffle(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
-
-    function startTraining() {
-      trainingItems = getTrainingCandidates();
-
-      if (trainingItems.length === 0) {
-        alert("Det finns inga ord eller uttryck att träna med detta urval.");
-        return;
-      }
-
-      shuffle(trainingItems);
-      currentTrainingIndex = 0;
-      trainingCorrect = 0;
-      trainingChecked = false;
-
-      trainingBox.classList.remove("hidden");
-      showTrainingWord();
-      trainingInput.focus();
-    }
-
-    function showTrainingWord() {
-      if (currentTrainingIndex >= trainingItems.length) {
-        trainingProgress.textContent = "Klar";
-        trainingWord.textContent = "Träningen är klar";
-        trainingInput.value = "";
-        trainingFeedback.textContent = `Slutresultat: ${trainingCorrect} av ${trainingItems.length} rätt.`;
-        trainingFeedback.className = "training-feedback";
-        trainingScore.textContent = "";
-        trainingChecked = true;
-        return;
-      }
-
-      const item = trainingItems[currentTrainingIndex];
-
-      trainingProgress.textContent = `Post ${currentTrainingIndex + 1} av ${trainingItems.length} | ${getTypeLabel(item.type)} | Status: ${getStatusLabel(item.statusNormalized)}`;
-
-      if (trainingDirection.value === "es-sv") {
-        trainingWord.textContent = item.spanish;
-      } else {
-        trainingWord.textContent = item.translation;
-      }
-
-      trainingInput.value = "";
-      trainingFeedback.textContent = "";
-      trainingFeedback.className = "training-feedback";
-      trainingScore.textContent = `Poäng: ${trainingCorrect} / ${trainingItems.length}`;
-      trainingChecked = false;
-    }
-
-    function checkTrainingAnswer() {
-      if (currentTrainingIndex >= trainingItems.length) return;
-      if (trainingChecked) return;
-
-      const item = trainingItems[currentTrainingIndex];
-      const correctAnswer = trainingDirection.value === "es-sv" ? item.translation : item.spanish;
-
-      const userAnswer = normalizePhrase(trainingInput.value);
-      const normalizedCorrect = normalizePhrase(correctAnswer);
-
-      if (userAnswer === normalizedCorrect) {
-        trainingCorrect++;
-        trainingFeedback.textContent = "Rätt";
-        trainingFeedback.className = "training-feedback correct";
-      } else {
-        trainingFeedback.textContent = `Fel. Rätt svar: ${correctAnswer}`;
-        trainingFeedback.className = "training-feedback wrong";
-      }
-
-      trainingScore.textContent = `Poäng: ${trainingCorrect} / ${trainingItems.length}`;
-      trainingChecked = true;
-    }
-
-    function nextTrainingWord() {
-      if (currentTrainingIndex >= trainingItems.length) return;
-      currentTrainingIndex++;
-      showTrainingWord();
-      trainingInput.focus();
-    }
-
-    function endTraining() {
-      trainingItems = [];
-      currentTrainingIndex = 0;
-      trainingCorrect = 0;
-      trainingChecked = false;
-      trainingBox.classList.add("hidden");
-      trainingInput.value = "";
-      trainingFeedback.textContent = "";
-      trainingScore.textContent = "";
-      trainingProgress.textContent = "";
-      trainingWord.textContent = "-";
-    }
-
-    function startFlashcards() {
-      flashcardItems = getFlashcardCandidates();
-
-      if (flashcardItems.length === 0) {
-        alert("Det finns inga ord eller uttryck med översättning för detta urval.");
-        return;
-      }
-
-      shuffle(flashcardItems);
-      currentFlashcardIndex = 0;
-      flashcardAnswerShown = false;
-
-      flashcardBox.classList.remove("hidden");
-      showFlashcard();
-    }
-
-    function showFlashcard() {
-      if (currentFlashcardIndex >= flashcardItems.length) {
-        flashcardProgress.textContent = "Klar";
-        flashcardSideLabel.textContent = "Klart";
-        flashcardFront.textContent = "Flashcards klara";
-        flashcardBack.classList.add("hidden");
-        flashcardBack.textContent = "";
-        flashcardMeta.textContent = "";
-        return;
-      }
-
-      const item = flashcardItems[currentFlashcardIndex];
-      const showSpanishFirst = flashcardDirection.value === "es-first";
-
-      flashcardProgress.textContent = `Kort ${currentFlashcardIndex + 1} av ${flashcardItems.length}`;
-      flashcardSideLabel.textContent = showSpanishFirst ? "Framsida: spanska" : "Framsida: svenska";
-      flashcardFront.textContent = showSpanishFirst ? item.spanish : item.translation;
-      flashcardBack.textContent = showSpanishFirst ? item.translation : item.spanish;
-      flashcardBack.classList.add("hidden");
-      flashcardMeta.textContent = `${getTypeLabel(item.type)} • Status: ${getStatusLabel(item.status)}`;
-      flashcardAnswerShown = false;
-    }
-
-    function showFlashcardAnswer() {
-      if (currentFlashcardIndex >= flashcardItems.length) return;
-      flashcardBack.classList.remove("hidden");
-      flashcardAnswerShown = true;
-    }
-
-    function setFlashcardStatus(status) {
-      if (currentFlashcardIndex >= flashcardItems.length) return;
-
-      const item = flashcardItems[currentFlashcardIndex];
-      if (!appData.items[item.key]) return;
-
-      appData.items[item.key].status = status;
-      saveAppData();
-      renderText();
-      renderWordBank();
-      renderStats();
-      flashcardMeta.textContent = `${getTypeLabel(item.type)} • Status: ${getStatusLabel(status)}`;
-    }
-
-    function nextFlashcard() {
-      if (currentFlashcardIndex >= flashcardItems.length) return;
-      currentFlashcardIndex++;
-      showFlashcard();
-    }
-
-    function endFlashcards() {
-      flashcardItems = [];
-      currentFlashcardIndex = 0;
-      flashcardAnswerShown = false;
-      flashcardBox.classList.add("hidden");
-      flashcardProgress.textContent = "";
-      flashcardSideLabel.textContent = "Framsida";
-      flashcardFront.textContent = "-";
-      flashcardBack.textContent = "";
-      flashcardBack.classList.add("hidden");
-      flashcardMeta.textContent = "";
-    }
-
-    function showContextMenu(x, y) {
-      contextMenu.style.display = "block";
-      contextMenu.style.left = `${x}px`;
-      contextMenu.style.top = `${y}px`;
-    }
-
-    function hideContextMenu() {
-      contextMenu.style.display = "none";
-      contextTargetKey = null;
-    }
-
-    function setContextStatus(status) {
-      if (!contextTargetKey || !appData.items[contextTargetKey]) return;
-
-      appData.items[contextTargetKey].status = status;
-      saveAppData();
-      renderText();
-      renderWordBank();
-      renderStats();
-      setSelectedItem(contextTargetKey);
-      hideContextMenu();
-      showSaveHint("Status sparad.");
-    }
-
-    contextMenu.querySelectorAll("button").forEach(button => {
-      button.addEventListener("click", () => {
-        const status = button.dataset.status;
-        setContextStatus(status);
-      });
-    });
-
-    document.addEventListener("click", (event) => {
-      if (!contextMenu.contains(event.target)) {
-        hideContextMenu();
-      }
-    });
-
-    window.addEventListener("scroll", hideContextMenu);
-    window.addEventListener("resize", hideContextMenu);
 
     loadTextBtn.addEventListener("click", loadText);
     resetMarksBtn.addEventListener("click", resetMarks);
@@ -1501,30 +996,6 @@
 
     exportFlashcardsAllBtn.addEventListener("click", () => exportFlashcards("all"));
     exportFlashcardsFocusedBtn.addEventListener("click", () => exportFlashcards("focused"));
-
-    startTrainingBtn.addEventListener("click", startTraining);
-    checkAnswerBtn.addEventListener("click", checkTrainingAnswer);
-    nextWordBtn.addEventListener("click", nextTrainingWord);
-    endTrainingBtn.addEventListener("click", endTraining);
-
-    trainingInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        event.preventDefault();
-        if (!trainingChecked) {
-          checkTrainingAnswer();
-        } else {
-          nextTrainingWord();
-        }
-      }
-    });
-
-    startFlashcardsBtn.addEventListener("click", startFlashcards);
-    showFlashcardAnswerBtn.addEventListener("click", showFlashcardAnswer);
-    nextFlashcardBtn.addEventListener("click", nextFlashcard);
-    endFlashcardsBtn.addEventListener("click", endFlashcards);
-    flashcardSetUnknownBtn.addEventListener("click", () => setFlashcardStatus("unknown"));
-    flashcardSetUnsureBtn.addEventListener("click", () => setFlashcardStatus("unsure"));
-    flashcardSetKnownBtn.addEventListener("click", () => setFlashcardStatus("known"));
 
     loadAppData();
     textInput.value = appData.text;
