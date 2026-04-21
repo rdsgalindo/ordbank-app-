@@ -5,26 +5,79 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ordbank-app</title>
   <style>
+    :root {
+      --color-unreviewed: #e6eef7;
+      --color-unknown: #f8caca;
+      --color-unsure: #fff0b8;
+      --color-known: #cfeccf;
+      --color-border: #d9d9d9;
+      --color-text: #222;
+      --color-bg: #f5f6f8;
+      --color-card: #ffffff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      max-width: 1200px;
-      margin: 30px auto;
-      padding: 20px;
+      max-width: 1280px;
+      margin: 24px auto;
+      padding: 16px;
       line-height: 1.6;
-      background: #f5f6f8;
-      color: #222;
+      background: var(--color-bg);
+      color: var(--color-text);
     }
 
     h1, h2, h3 {
       margin-bottom: 10px;
     }
 
+    .version {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+
     .card {
-      background: white;
+      background: var(--color-card);
       border-radius: 12px;
       padding: 18px;
       margin-bottom: 20px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 1.8fr 420px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .main-column {
+      min-width: 0;
+    }
+
+    .side-column {
+      min-width: 0;
+    }
+
+    .sticky-panel {
+      position: sticky;
+      top: 16px;
+    }
+
+    @media (max-width: 1024px) {
+      .sticky-panel {
+        position: static;
+      }
     }
 
     textarea {
@@ -34,21 +87,55 @@
       border-radius: 10px;
       border: 1px solid #ccc;
       font-size: 16px;
-      box-sizing: border-box;
       resize: vertical;
     }
 
     .controls,
     .toolbar,
-    .status-buttons {
+    .status-buttons,
+    .stats-grid {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 12px;
       align-items: center;
     }
 
-    button, select, input[type="text"] {
+    .stats-grid {
+      margin-top: 12px;
+    }
+
+    .stat-box {
+      min-width: 120px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      border: 1px solid var(--color-border);
+      background: #fafafa;
+    }
+
+    .stat-box strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 2px;
+    }
+
+    .stat-unreviewed {
+      background: var(--color-unreviewed);
+    }
+
+    .stat-unknown {
+      background: var(--color-unknown);
+    }
+
+    .stat-unsure {
+      background: var(--color-unsure);
+    }
+
+    .stat-known {
+      background: var(--color-known);
+    }
+
+    button, select, input[type="text"], input[type="file"] {
       padding: 10px 12px;
       border-radius: 8px;
       border: 1px solid #ccc;
@@ -77,18 +164,23 @@
       padding: 6px 10px;
       border-radius: 8px;
       font-size: 14px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .unreviewed {
+      background: var(--color-unreviewed);
     }
 
     .unknown {
-      background: #f8caca;
+      background: var(--color-unknown);
     }
 
     .unsure {
-      background: #fff0b8;
+      background: var(--color-unsure);
     }
 
     .known {
-      background: #cfeccf;
+      background: var(--color-known);
     }
 
     .word {
@@ -99,6 +191,7 @@
       margin-bottom: 2px;
       border-radius: 5px;
       transition: 0.15s ease;
+      user-select: none;
     }
 
     .word:hover {
@@ -115,25 +208,8 @@
       color: #555;
     }
 
-    .stats {
-      font-weight: bold;
-      margin-top: 12px;
-    }
-
-    .panel-grid {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 900px) {
-      .panel-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
     .selected-word-box {
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border);
       border-radius: 10px;
       padding: 14px;
       background: #fafafa;
@@ -143,6 +219,11 @@
       font-size: 24px;
       font-weight: bold;
       margin-bottom: 8px;
+      word-break: break-word;
+    }
+
+    .status-buttons {
+      margin: 10px 0;
     }
 
     .status-btn {
@@ -151,28 +232,49 @@
       border: 1px solid #ccc;
     }
 
+    .status-btn.active-unreviewed {
+      background: var(--color-unreviewed);
+      font-weight: bold;
+    }
+
     .status-btn.active-unknown {
-      background: #f8caca;
+      background: var(--color-unknown);
+      font-weight: bold;
     }
 
     .status-btn.active-unsure {
-      background: #fff0b8;
+      background: var(--color-unsure);
+      font-weight: bold;
     }
 
     .status-btn.active-known {
-      background: #cfeccf;
-    }
-
-    .status-btn.active-none {
-      background: #e9e9e9;
+      background: var(--color-known);
       font-weight: bold;
     }
 
     .translation-input,
     .input-full {
       width: 100%;
-      box-sizing: border-box;
       margin-top: 8px;
+    }
+
+    .save-hint {
+      min-height: 20px;
+      margin-top: 8px;
+      font-size: 13px;
+      color: #1d6f2c;
+    }
+
+    .sub-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 900px) {
+      .sub-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     table {
@@ -193,7 +295,8 @@
       background: #f3f3f3;
     }
 
-    .status-pill {
+    .status-pill,
+    .type-pill {
       display: inline-block;
       padding: 4px 8px;
       border-radius: 999px;
@@ -201,10 +304,6 @@
     }
 
     .type-pill {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 12px;
       background: #e9eef8;
     }
 
@@ -228,7 +327,7 @@
 
     .training-box {
       margin-top: 15px;
-      border: 1px solid #ddd;
+      border: 1px solid var(--color-border);
       border-radius: 10px;
       padding: 15px;
       background: #fafafa;
@@ -238,11 +337,13 @@
       font-size: 28px;
       font-weight: bold;
       margin-bottom: 12px;
+      word-break: break-word;
     }
 
     .training-feedback {
       margin-top: 12px;
       font-weight: bold;
+      min-height: 24px;
     }
 
     .training-feedback.correct {
@@ -257,201 +358,310 @@
       display: none;
     }
 
-    .sub-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
+    .context-menu {
+      position: absolute;
+      display: none;
+      min-width: 180px;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      z-index: 2000;
+      overflow: hidden;
     }
 
-    @media (max-width: 900px) {
-      .sub-grid {
-        grid-template-columns: 1fr;
-      }
+    .context-menu button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: none;
+      border-radius: 0;
+      background: white;
+      color: #222;
+      padding: 12px 14px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .context-menu button:hover {
+      background: #f2f2f2;
+    }
+
+    .context-menu button.menu-unreviewed:hover {
+      background: var(--color-unreviewed);
+    }
+
+    .context-menu button.menu-unknown:hover {
+      background: var(--color-unknown);
+    }
+
+    .context-menu button.menu-unsure:hover {
+      background: var(--color-unsure);
+    }
+
+    .context-menu button.menu-known:hover {
+      background: var(--color-known);
+    }
+
+    .muted {
+      color: #666;
     }
   </style>
 </head>
 <body>
   <h1>Spansk text med personlig ordbank</h1>
+  <div class="version">Version: v6 sticky panel + högerklick + räknare + flashcard-export</div>
 
-  <div class="card">
-    <h2>1. Lägg in text</h2>
-    <p class="small">
-      Klistra in en spansk text och klicka på “Ladda text”. Klicka sedan på ord i texten för att markera dem och skriva egen översättning.
-    </p>
-    <textarea id="textInput">Hola, me llamo Ana y vivo en Madrid con mi familia. Todos los días voy a la escuela por la mañana. Me gusta leer libros, escuchar música y hablar con mis amigos. Después de la escuela, como en casa y hago mis tareas. A veces hace frío en invierno, pero en verano hace calor.</textarea>
-    <div class="controls">
-      <button id="loadTextBtn">Ladda text</button>
-      <button id="resetMarksBtn">Nollställ markeringar</button>
-      <button id="resetAllBtn">Nollställ allt</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>2. Instruktion</h2>
-    <p><strong>Klicka på ett ord</strong> i texten. Då kan du:</p>
-    <div class="legend">
-      <span class="unknown">markera som okänt</span>
-      <span class="unsure">markera som osäkert</span>
-      <span class="known">markera som kan</span>
-    </div>
-    <p class="small">
-      Du kan också skriva en egen svensk översättning till ordet. För flerordsuttryck använder du rutan “Lägg till uttryck”.
-    </p>
-    <div class="stats" id="stats"></div>
-  </div>
-
-  <div class="panel-grid">
-    <div class="card">
-      <h2>3. Text</h2>
-      <div id="textContainer" class="text-area"></div>
-    </div>
-
-    <div class="card">
-      <h2>4. Ordpanel</h2>
-      <div class="selected-word-box">
-        <div id="selectedWord" class="selected-word">Inget ord valt</div>
-        <div class="small">Status</div>
-        <div class="status-buttons">
-          <button class="status-btn" id="btnUnknown">Okänt</button>
-          <button class="status-btn" id="btnUnsure">Osäkert</button>
-          <button class="status-btn" id="btnKnown">Kan</button>
-          <button class="status-btn" id="btnClear">Avmarkera</button>
-        </div>
-
-        <div class="small">Egen svensk översättning</div>
-        <input
-          type="text"
-          id="translationInput"
-          class="translation-input"
-          placeholder="Skriv översättning här"
-        />
+  <div class="layout">
+    <div class="main-column">
+      <div class="card">
+        <h2>1. Lägg in text</h2>
+        <p class="small">
+          Vänsterklick på ett ord öppnar panelen. Högerklick öppnar snabbmenyn för status. Obehandlade ord är gråblå från början.
+        </p>
+        <textarea id="textInput">Hola, me llamo Ana y vivo en Madrid con mi familia. Todos los días voy a la escuela por la mañana. Me gusta leer libros, escuchar música y hablar con mis amigos. Después de la escuela, como en casa y hago mis tareas. A veces hace frío en invierno, pero en verano hace calor.</textarea>
         <div class="controls">
-          <button id="saveTranslationBtn">Spara översättning</button>
+          <button id="loadTextBtn">Ladda text</button>
+          <button id="resetMarksBtn">Nollställ markeringar</button>
+          <button id="resetAllBtn">Nollställ allt</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>2. Översikt</h2>
+        <div class="legend">
+          <span class="unreviewed">obehandlat</span>
+          <span class="unknown">okänt</span>
+          <span class="unsure">osäkert</span>
+          <span class="known">kan</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-box">
+            <strong id="statTotal">0</strong>
+            Totalt
+          </div>
+          <div class="stat-box stat-unreviewed">
+            <strong id="statUnreviewed">0</strong>
+            Obehandlade
+          </div>
+          <div class="stat-box stat-unknown">
+            <strong id="statUnknown">0</strong>
+            Okända
+          </div>
+          <div class="stat-box stat-unsure">
+            <strong id="statUnsure">0</strong>
+            Osäkra
+          </div>
+          <div class="stat-box stat-known">
+            <strong id="statKnown">0</strong>
+            Kan
+          </div>
+          <div class="stat-box">
+            <strong id="statKnownPercent">0%</strong>
+            Andel kan
+          </div>
+        </div>
+
+        <div class="small" id="statsLine" style="margin-top:10px;"></div>
+      </div>
+
+      <div class="card">
+        <h2>3. Text</h2>
+        <div id="textContainer" class="text-area"></div>
+      </div>
+
+      <div class="card">
+        <h2>4. Lägg till uttryck</h2>
+        <p class="small">
+          Använd detta för flerordsuttryck, till exempel “hace frío”.
+        </p>
+
+        <div class="sub-grid">
+          <div>
+            <label for="phraseSpanish"><strong>Spanska</strong></label>
+            <input type="text" id="phraseSpanish" class="input-full" placeholder="t.ex. hace frío" />
+          </div>
+          <div>
+            <label for="phraseSwedish"><strong>Svenska</strong></label>
+            <input type="text" id="phraseSwedish" class="input-full" placeholder="t.ex. det är kallt" />
+          </div>
+        </div>
+
+        <div class="controls">
+          <label for="phraseStatus">Status:</label>
+          <select id="phraseStatus">
+            <option value="unknown">Okänt</option>
+            <option value="unsure">Osäkert</option>
+            <option value="known">Kan</option>
+          </select>
+          <button id="addPhraseBtn">Lägg till uttryck</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>5. Min ordbank</h2>
+
+        <div class="toolbar">
+          <label for="filterStatus">Filtrera status:</label>
+          <select id="filterStatus">
+            <option value="all">Alla</option>
+            <option value="unreviewed">Obehandlade</option>
+            <option value="unknown">Okända</option>
+            <option value="unsure">Osäkra</option>
+            <option value="known">Kan</option>
+          </select>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Spanska</th>
+              <th>Typ</th>
+              <th>Status</th>
+              <th>Svenska</th>
+            </tr>
+          </thead>
+          <tbody id="wordBankBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>6. Glosträning</h2>
+
+        <div class="controls">
+          <label for="trainingDirection">Riktning:</label>
+          <select id="trainingDirection">
+            <option value="es-sv">Spanska → Svenska</option>
+            <option value="sv-es">Svenska → Spanska</option>
+          </select>
+
+          <label for="trainingFilter">Träna:</label>
+          <select id="trainingFilter">
+            <option value="all">Alla med översättning</option>
+            <option value="unknown-unsure">Bara okända och osäkra</option>
+            <option value="unknown">Bara okända</option>
+            <option value="unsure">Bara osäkra</option>
+            <option value="known">Bara kan</option>
+          </select>
+
+          <button id="startTrainingBtn">Starta träning</button>
+        </div>
+
+        <div id="trainingBox" class="training-box hidden">
+          <div class="small" id="trainingProgress"></div>
+          <div class="training-word" id="trainingWord">-</div>
+
+          <input
+            type="text"
+            id="trainingInput"
+            class="input-full"
+            placeholder="Skriv ditt svar här"
+          />
+
+          <div class="controls">
+            <button id="checkAnswerBtn">Kontrollera</button>
+            <button id="nextWordBtn">Nästa</button>
+            <button id="endTrainingBtn">Avsluta</button>
+          </div>
+
+          <div id="trainingFeedback" class="training-feedback"></div>
+          <div class="stats" id="trainingScore"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-column">
+      <div class="sticky-panel">
+        <div class="card">
+          <h2>Ordpanel</h2>
+          <div class="selected-word-box">
+            <div id="selectedWord" class="selected-word">Inget ord valt</div>
+            <div class="small muted" id="selectedMeta">Välj ett ord eller uttryck</div>
+
+            <div class="small" style="margin-top:10px;">Status</div>
+            <div class="status-buttons">
+              <button class="status-btn" id="btnUnreviewed">Obehandlat</button>
+              <button class="status-btn" id="btnUnknown">Okänt</button>
+              <button class="status-btn" id="btnUnsure">Osäkert</button>
+              <button class="status-btn" id="btnKnown">Kan</button>
+            </div>
+
+            <div class="small">Egen svensk översättning</div>
+            <input
+              type="text"
+              id="translationInput"
+              class="translation-input"
+              placeholder="Skriv översättning här"
+            />
+            <div class="controls">
+              <button id="saveTranslationBtn">Spara översättning</button>
+            </div>
+
+            <div id="saveHint" class="save-hint"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Arbetsfil</h2>
+          <p class="small">
+            Använd detta för att fortsätta senare.
+          </p>
+          <div class="controls">
+            <button id="saveWorkBtn">Spara min ordbank</button>
+            <label for="importFile" class="file-input-label">Läs in min ordbank</label>
+            <input type="file" id="importFile" accept=".json" />
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Flashcards</h2>
+          <p class="small">
+            Exporterar till TSV-format för Quizlet, Anki, Excel eller Google Sheets.
+          </p>
+          <div class="controls">
+            <button id="exportFlashcardsAllBtn">Exportera flashcards: alla</button>
+            <button id="exportFlashcardsFocusedBtn">Exportera flashcards: okända + osäkra</button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>5. Lägg till uttryck</h2>
-    <p class="small">
-      Använd detta för flerordsuttryck som inte fungerar bra som enstaka ord, till exempel “hace frío”.
-    </p>
-
-    <div class="sub-grid">
-      <div>
-        <label for="phraseSpanish"><strong>Spanska</strong></label>
-        <input type="text" id="phraseSpanish" class="input-full" placeholder="t.ex. hace frío" />
-      </div>
-      <div>
-        <label for="phraseSwedish"><strong>Svenska</strong></label>
-        <input type="text" id="phraseSwedish" class="input-full" placeholder="t.ex. det är kallt" />
-      </div>
-    </div>
-
-    <div class="controls">
-      <label for="phraseStatus">Status:</label>
-      <select id="phraseStatus">
-        <option value="unknown">Okänt</option>
-        <option value="unsure">Osäkert</option>
-        <option value="known">Kan</option>
-      </select>
-      <button id="addPhraseBtn">Lägg till uttryck</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>6. Min ordbank</h2>
-
-    <div class="toolbar">
-      <label for="filterStatus">Filtrera status:</label>
-      <select id="filterStatus">
-        <option value="all">Alla</option>
-        <option value="unknown">Okända</option>
-        <option value="unsure">Osäkra</option>
-        <option value="known">Kan</option>
-      </select>
-
-      <button id="exportBtn">Exportera ordbank</button>
-      <label for="importFile" class="file-input-label">Importera ordbank</label>
-      <input type="file" id="importFile" accept=".json" />
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Spanska</th>
-          <th>Typ</th>
-          <th>Status</th>
-          <th>Svenska</th>
-        </tr>
-      </thead>
-      <tbody id="wordBankBody"></tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <h2>7. Glosträning</h2>
-
-    <div class="controls">
-      <label for="trainingDirection">Riktning:</label>
-      <select id="trainingDirection">
-        <option value="es-sv">Spanska → Svenska</option>
-        <option value="sv-es">Svenska → Spanska</option>
-      </select>
-
-      <label for="trainingFilter">Träna:</label>
-      <select id="trainingFilter">
-        <option value="all">Alla med översättning</option>
-        <option value="unknown-unsure">Bara okända och osäkra</option>
-        <option value="unknown">Bara okända</option>
-        <option value="unsure">Bara osäkra</option>
-        <option value="known">Bara kan</option>
-      </select>
-
-      <button id="startTrainingBtn">Starta träning</button>
-    </div>
-
-    <div id="trainingBox" class="training-box hidden">
-      <div class="small" id="trainingProgress"></div>
-      <div class="training-word" id="trainingWord">-</div>
-
-      <input
-        type="text"
-        id="trainingInput"
-        class="input-full"
-        placeholder="Skriv ditt svar här"
-      />
-
-      <div class="controls">
-        <button id="checkAnswerBtn">Kontrollera</button>
-        <button id="nextWordBtn">Nästa</button>
-        <button id="endTrainingBtn">Avsluta</button>
-      </div>
-
-      <div id="trainingFeedback" class="training-feedback"></div>
-      <div class="stats" id="trainingScore"></div>
-    </div>
+  <div id="contextMenu" class="context-menu">
+    <button class="menu-unreviewed" data-status="unreviewed">Obehandlat</button>
+    <button class="menu-unknown" data-status="unknown">Okänt</button>
+    <button class="menu-unsure" data-status="unsure">Osäkert</button>
+    <button class="menu-known" data-status="known">Kan</button>
   </div>
 
   <script>
-    const STORAGE_KEY = "ordbank_app_v4";
+    const STORAGE_KEY = "ordbank_app_v6";
 
     const textInput = document.getElementById("textInput");
     const loadTextBtn = document.getElementById("loadTextBtn");
     const resetMarksBtn = document.getElementById("resetMarksBtn");
     const resetAllBtn = document.getElementById("resetAllBtn");
     const textContainer = document.getElementById("textContainer");
-    const stats = document.getElementById("stats");
+
+    const statTotal = document.getElementById("statTotal");
+    const statUnreviewed = document.getElementById("statUnreviewed");
+    const statUnknown = document.getElementById("statUnknown");
+    const statUnsure = document.getElementById("statUnsure");
+    const statKnown = document.getElementById("statKnown");
+    const statKnownPercent = document.getElementById("statKnownPercent");
+    const statsLine = document.getElementById("statsLine");
 
     const selectedWordEl = document.getElementById("selectedWord");
+    const selectedMeta = document.getElementById("selectedMeta");
     const translationInput = document.getElementById("translationInput");
     const saveTranslationBtn = document.getElementById("saveTranslationBtn");
+    const saveHint = document.getElementById("saveHint");
 
+    const btnUnreviewed = document.getElementById("btnUnreviewed");
     const btnUnknown = document.getElementById("btnUnknown");
     const btnUnsure = document.getElementById("btnUnsure");
     const btnKnown = document.getElementById("btnKnown");
-    const btnClear = document.getElementById("btnClear");
 
     const phraseSpanish = document.getElementById("phraseSpanish");
     const phraseSwedish = document.getElementById("phraseSwedish");
@@ -461,8 +671,10 @@
     const filterStatus = document.getElementById("filterStatus");
     const wordBankBody = document.getElementById("wordBankBody");
 
-    const exportBtn = document.getElementById("exportBtn");
+    const saveWorkBtn = document.getElementById("saveWorkBtn");
     const importFile = document.getElementById("importFile");
+    const exportFlashcardsAllBtn = document.getElementById("exportFlashcardsAllBtn");
+    const exportFlashcardsFocusedBtn = document.getElementById("exportFlashcardsFocusedBtn");
 
     const trainingDirection = document.getElementById("trainingDirection");
     const trainingFilter = document.getElementById("trainingFilter");
@@ -477,12 +689,15 @@
     const trainingFeedback = document.getElementById("trainingFeedback");
     const trainingScore = document.getElementById("trainingScore");
 
+    const contextMenu = document.getElementById("contextMenu");
+
     let appData = {
       text: textInput.value,
       items: {}
     };
 
     let selectedItemKey = null;
+    let contextTargetKey = null;
 
     let trainingItems = [];
     let currentTrainingIndex = 0;
@@ -534,7 +749,7 @@
         appData.items[key] = {
           type: "word",
           spanish: word,
-          status: "",
+          status: "unreviewed",
           translation: ""
         };
       }
@@ -542,6 +757,7 @@
     }
 
     function getStatusLabel(status) {
+      if (status === "unreviewed") return "Obehandlat";
       if (status === "unknown") return "Okänt";
       if (status === "unsure") return "Osäkert";
       if (status === "known") return "Kan";
@@ -554,11 +770,20 @@
       return "";
     }
 
+    function showSaveHint(message) {
+      saveHint.textContent = message;
+      clearTimeout(showSaveHint.timeoutId);
+      showSaveHint.timeoutId = setTimeout(() => {
+        saveHint.textContent = "";
+      }, 1800);
+    }
+
     function setSelectedItem(key) {
       selectedItemKey = key;
 
       if (!key || !appData.items[key]) {
         selectedWordEl.textContent = "Inget ord valt";
+        selectedMeta.textContent = "Välj ett ord eller uttryck";
         translationInput.value = "";
         updateStatusButtons("");
         return;
@@ -566,20 +791,21 @@
 
       const item = appData.items[key];
       selectedWordEl.textContent = item.spanish;
+      selectedMeta.textContent = `${getTypeLabel(item.type)} • ${getStatusLabel(item.status)}`;
       translationInput.value = item.translation || "";
       updateStatusButtons(item.status || "");
     }
 
     function updateStatusButtons(status) {
+      btnUnreviewed.className = "status-btn";
       btnUnknown.className = "status-btn";
       btnUnsure.className = "status-btn";
       btnKnown.className = "status-btn";
-      btnClear.className = "status-btn";
 
+      if (status === "unreviewed") btnUnreviewed.classList.add("active-unreviewed");
       if (status === "unknown") btnUnknown.classList.add("active-unknown");
       if (status === "unsure") btnUnsure.classList.add("active-unsure");
       if (status === "known") btnKnown.classList.add("active-known");
-      if (status === "") btnClear.classList.add("active-none");
     }
 
     function setSelectedItemStatus(status) {
@@ -591,6 +817,7 @@
       renderWordBank();
       renderStats();
       setSelectedItem(selectedItemKey);
+      showSaveHint("Status sparad.");
     }
 
     function saveTranslation() {
@@ -601,6 +828,7 @@
       renderWordBank();
       renderStats();
       setSelectedItem(selectedItemKey);
+      showSaveHint("Översättning sparad.");
     }
 
     function addPhrase() {
@@ -625,9 +853,18 @@
       saveAppData();
       renderWordBank();
       renderStats();
+      setSelectedItem(key);
 
       phraseSpanish.value = "";
       phraseSwedish.value = "";
+      showSaveHint("Uttryck tillagt.");
+    }
+
+    function getWordClass(status) {
+      if (status === "unknown") return "unknown";
+      if (status === "unsure") return "unsure";
+      if (status === "known") return "known";
+      return "unreviewed";
     }
 
     function renderText() {
@@ -654,13 +891,19 @@
         const span = document.createElement("span");
         span.textContent = token;
         span.classList.add("word");
-
-        if (item && item.status) {
-          span.classList.add(item.status);
-        }
+        span.classList.add(getWordClass(item.status));
+        span.dataset.key = key;
 
         span.addEventListener("click", () => {
           setSelectedItem(key);
+          hideContextMenu();
+        });
+
+        span.addEventListener("contextmenu", (event) => {
+          event.preventDefault();
+          contextTargetKey = key;
+          setSelectedItem(key);
+          showContextMenu(event.pageX, event.pageY);
         });
 
         textContainer.appendChild(span);
@@ -669,15 +912,24 @@
 
     function renderStats() {
       const items = Object.values(appData.items);
-
+      const total = items.length;
+      const unreviewedCount = items.filter(item => item.status === "unreviewed").length;
       const unknownCount = items.filter(item => item.status === "unknown").length;
       const unsureCount = items.filter(item => item.status === "unsure").length;
       const knownCount = items.filter(item => item.status === "known").length;
+      const knownPercent = total > 0 ? Math.round((knownCount / total) * 100) : 0;
+
+      statTotal.textContent = total;
+      statUnreviewed.textContent = unreviewedCount;
+      statUnknown.textContent = unknownCount;
+      statUnsure.textContent = unsureCount;
+      statKnown.textContent = knownCount;
+      statKnownPercent.textContent = `${knownPercent}%`;
+
       const translatedCount = items.filter(item => (item.translation || "").trim() !== "").length;
       const phraseCount = items.filter(item => item.type === "phrase").length;
 
-      stats.textContent =
-        `Okända: ${unknownCount} | Osäkra: ${unsureCount} | Kan: ${knownCount} | Med översättning: ${translatedCount} | Uttryck: ${phraseCount}`;
+      statsLine.textContent = `Med översättning: ${translatedCount} | Uttryck: ${phraseCount}`;
     }
 
     function renderWordBank() {
@@ -703,20 +955,18 @@
       items.forEach(item => {
         const row = document.createElement("tr");
 
-        let pillClass = "";
-        if (item.status === "unknown") pillClass = "unknown";
-        if (item.status === "unsure") pillClass = "unsure";
-        if (item.status === "known") pillClass = "known";
+        let pillClass = getWordClass(item.status);
 
         row.innerHTML = `
           <td>${item.spanish}</td>
           <td><span class="type-pill">${getTypeLabel(item.type)}</span></td>
-          <td>${item.status ? `<span class="status-pill ${pillClass}">${getStatusLabel(item.status)}</span>` : ""}</td>
+          <td><span class="status-pill ${pillClass}">${getStatusLabel(item.status)}</span></td>
           <td>${item.translation || ""}</td>
         `;
 
         row.addEventListener("click", () => {
           setSelectedItem(item.key);
+          hideContextMenu();
         });
 
         wordBankBody.appendChild(row);
@@ -730,33 +980,30 @@
       renderWordBank();
       renderStats();
       setSelectedItem(null);
+      hideContextMenu();
     }
 
     function resetMarks() {
-      const confirmed = confirm("Vill du nollställa alla statusar och översättningar men behålla text och uttryck?");
+      const confirmed = confirm("Vill du nollställa statusar och översättningar för ord i texten men behålla uttryck?");
       if (!confirmed) return;
 
-      const newItems = {};
-
       Object.entries(appData.items).forEach(([key, item]) => {
-        if (item.type === "phrase") {
-          newItems[key] = item;
-        } else {
-          newItems[key] = {
+        if (item.type === "word") {
+          appData.items[key] = {
             ...item,
-            status: "",
+            status: "unreviewed",
             translation: ""
           };
         }
       });
 
-      appData.items = newItems;
       saveAppData();
       renderText();
       renderWordBank();
       renderStats();
       setSelectedItem(null);
       endTraining();
+      hideContextMenu();
     }
 
     function resetAll() {
@@ -774,11 +1021,12 @@
       renderStats();
       setSelectedItem(null);
       endTraining();
+      hideContextMenu();
     }
 
-    function exportData() {
+    function exportWorkFile() {
       const exportObject = {
-        version: 4,
+        version: 6,
         exportedAt: new Date().toISOString(),
         data: appData
       };
@@ -791,14 +1039,14 @@
       const a = document.createElement("a");
       const dateString = new Date().toISOString().slice(0, 10);
       a.href = url;
-      a.download = `ordbank-${dateString}.json`;
+      a.download = `min-ordbank-${dateString}.json`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
 
-    function importData(event) {
+    function importWorkFile(event) {
       const file = event.target.files[0];
       if (!file) return;
 
@@ -825,8 +1073,9 @@
           renderStats();
           setSelectedItem(null);
           endTraining();
+          hideContextMenu();
 
-          alert("Ordbanken har importerats.");
+          alert("Ordbanken har lästs in.");
         } catch (error) {
           alert("Kunde inte läsa filen. Kontrollera att det är en giltig JSON-fil.");
           console.error(error);
@@ -838,6 +1087,42 @@
       reader.readAsText(file);
     }
 
+    function buildFlashcardRows(mode) {
+      return Object.values(appData.items)
+        .filter(item => (item.translation || "").trim() !== "")
+        .filter(item => {
+          if (mode === "all") return true;
+          if (mode === "focused") {
+            return item.status === "unknown" || item.status === "unsure";
+          }
+          return true;
+        })
+        .sort((a, b) => a.spanish.localeCompare(b.spanish, "es"))
+        .map(item => `${item.spanish}\t${item.translation}`);
+    }
+
+    function exportFlashcards(mode) {
+      const rows = buildFlashcardRows(mode);
+
+      if (rows.length === 0) {
+        alert("Det finns inga poster med översättning att exportera.");
+        return;
+      }
+
+      const content = rows.join("\n");
+      const blob = new Blob([content], { type: "text/tab-separated-values;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const dateString = new Date().toISOString().slice(0, 10);
+      const suffix = mode === "focused" ? "okanda-osakra" : "alla";
+      a.href = url;
+      a.download = `flashcards-${suffix}-${dateString}.tsv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
     function getTrainingCandidates() {
       return Object.entries(appData.items)
         .map(([key, item]) => ({
@@ -846,31 +1131,17 @@
           statusNormalized: (item.status || "").trim(),
           translationNormalized: (item.translation || "").trim()
         }))
+        .filter(item => item.translationNormalized !== "")
         .filter(item => {
-          if (item.translationNormalized === "") return false;
-
           const filter = trainingFilter.value;
 
-          if (filter === "all") {
-            return true;
-          }
-
+          if (filter === "all") return true;
           if (filter === "unknown-unsure") {
             return item.statusNormalized === "unknown" || item.statusNormalized === "unsure";
           }
-
-          if (filter === "unknown") {
-            return item.statusNormalized === "unknown";
-          }
-
-          if (filter === "unsure") {
-            return item.statusNormalized === "unsure";
-          }
-
-          if (filter === "known") {
-            return item.statusNormalized === "known";
-          }
-
+          if (filter === "unknown") return item.statusNormalized === "unknown";
+          if (filter === "unsure") return item.statusNormalized === "unsure";
+          if (filter === "known") return item.statusNormalized === "known";
           return false;
         });
     }
@@ -886,7 +1157,7 @@
       trainingItems = getTrainingCandidates();
 
       if (trainingItems.length === 0) {
-        alert("Det finns inga ord eller uttryck att träna med detta urval. Kontrollera att de har både status och sparad översättning.");
+        alert("Det finns inga ord eller uttryck att träna med detta urval.");
         return;
       }
 
@@ -934,13 +1205,7 @@
       if (trainingChecked) return;
 
       const item = trainingItems[currentTrainingIndex];
-
-      let correctAnswer = "";
-      if (trainingDirection.value === "es-sv") {
-        correctAnswer = item.translation;
-      } else {
-        correctAnswer = item.spanish;
-      }
+      const correctAnswer = trainingDirection.value === "es-sv" ? item.translation : item.spanish;
 
       const userAnswer = normalizePhrase(trainingInput.value);
       const normalizedCorrect = normalizePhrase(correctAnswer);
@@ -978,22 +1243,65 @@
       trainingWord.textContent = "-";
     }
 
+    function showContextMenu(x, y) {
+      contextMenu.style.display = "block";
+      contextMenu.style.left = `${x}px`;
+      contextMenu.style.top = `${y}px`;
+    }
+
+    function hideContextMenu() {
+      contextMenu.style.display = "none";
+      contextTargetKey = null;
+    }
+
+    function setContextStatus(status) {
+      if (!contextTargetKey || !appData.items[contextTargetKey]) return;
+
+      appData.items[contextTargetKey].status = status;
+      saveAppData();
+      renderText();
+      renderWordBank();
+      renderStats();
+      setSelectedItem(contextTargetKey);
+      hideContextMenu();
+      showSaveHint("Status sparad.");
+    }
+
+    contextMenu.querySelectorAll("button").forEach(button => {
+      button.addEventListener("click", () => {
+        const status = button.dataset.status;
+        setContextStatus(status);
+      });
+    });
+
+    document.addEventListener("click", (event) => {
+      if (!contextMenu.contains(event.target)) {
+        hideContextMenu();
+      }
+    });
+
+    window.addEventListener("scroll", hideContextMenu);
+    window.addEventListener("resize", hideContextMenu);
+
     loadTextBtn.addEventListener("click", loadText);
     resetMarksBtn.addEventListener("click", resetMarks);
     resetAllBtn.addEventListener("click", resetAll);
 
+    btnUnreviewed.addEventListener("click", () => setSelectedItemStatus("unreviewed"));
     btnUnknown.addEventListener("click", () => setSelectedItemStatus("unknown"));
     btnUnsure.addEventListener("click", () => setSelectedItemStatus("unsure"));
     btnKnown.addEventListener("click", () => setSelectedItemStatus("known"));
-    btnClear.addEventListener("click", () => setSelectedItemStatus(""));
 
     saveTranslationBtn.addEventListener("click", saveTranslation);
     addPhraseBtn.addEventListener("click", addPhrase);
 
     filterStatus.addEventListener("change", renderWordBank);
 
-    exportBtn.addEventListener("click", exportData);
-    importFile.addEventListener("change", importData);
+    saveWorkBtn.addEventListener("click", exportWorkFile);
+    importFile.addEventListener("change", importWorkFile);
+
+    exportFlashcardsAllBtn.addEventListener("click", () => exportFlashcards("all"));
+    exportFlashcardsFocusedBtn.addEventListener("click", () => exportFlashcards("focused"));
 
     startTrainingBtn.addEventListener("click", startTraining);
     checkAnswerBtn.addEventListener("click", checkTrainingAnswer);
