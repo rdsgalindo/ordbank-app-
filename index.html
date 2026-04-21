@@ -156,6 +156,16 @@
       background: var(--color-known);
     }
 
+    .text-card {
+      transition: all 0.2s ease;
+    }
+
+    .text-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 12px;
+    }
+
     .text-wrapper {
       background: white;
       padding: 24px;
@@ -172,12 +182,15 @@
     .word {
       display: inline-block;
       cursor: pointer;
-      padding: 2px 5px;
+      padding: 4px 6px;
       margin-right: 2px;
-      margin-bottom: 2px;
+      margin-bottom: 4px;
       border-radius: 6px;
       transition: 0.15s ease;
       user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
     }
 
     .word:hover {
@@ -343,25 +356,37 @@
       color: #1d6f2c;
     }
 
-    .panel-help {
-      font-size: 13px;
-      color: #666;
-      margin-top: 4px;
+    .hidden {
+      display: none !important;
     }
 
-    .hidden {
+    body.focus-mode .card:not(.text-card) {
       display: none;
+    }
+
+    body.focus-mode .text-card {
+      margin-top: 10px;
+    }
+
+    body.focus-mode .text-wrapper {
+      padding: 28px;
+    }
+
+    body.focus-mode .text-area {
+      max-width: 780px;
+      font-size: 28px;
+      line-height: 2.3;
     }
   </style>
 </head>
 <body>
   <h1>Spansk text med personlig ordbank</h1>
-  <div class="version">Version: v8 textfokus + bottenpanel + utan interna flashcards</div>
+  <div class="version">Version: v9 fokusläge + bättre iPad-stöd</div>
 
   <div class="card">
     <h2>1. Lägg in text</h2>
     <p class="small">
-      Tryck eller klicka på ett ord i texten för att öppna ordpanelen längst ner. Där väljer du status och kan skriva översättning.
+      Tryck eller klicka på ett ord i texten för att öppna ordpanelen längst ner.
     </p>
     <textarea id="textInput">Hola, me llamo Ana y vivo en Madrid con mi familia. Todos los días voy a la escuela por la mañana. Me gusta leer libros, escuchar música y hablar con mis amigos. Después de la escuela, como en casa y hago mis tareas. A veces hace frío en invierno, pero en verano hace calor.</textarea>
     <div class="controls">
@@ -410,7 +435,10 @@
     <div class="small" id="statsLine" style="margin-top:10px;"></div>
   </div>
 
-  <div class="card">
+  <div class="card text-card">
+    <div class="text-toolbar">
+      <button id="focusModeBtn">Fokusera på texten</button>
+    </div>
     <h2>3. Text</h2>
     <div class="text-wrapper">
       <div id="textContainer" class="text-area"></div>
@@ -496,7 +524,6 @@
         <div>
           <div id="selectedWord" class="selected-word">Inget ord valt</div>
           <div id="selectedMeta" class="selected-meta">Tryck på ett ord i texten.</div>
-          <div class="panel-help">Målet är att arbeta direkt i texten utan att behöva bläddra upp och ner.</div>
         </div>
 
         <div>
@@ -525,13 +552,14 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "ordbank_app_v8";
+    const STORAGE_KEY = "ordbank_app_v9";
 
     const textInput = document.getElementById("textInput");
     const loadTextBtn = document.getElementById("loadTextBtn");
     const resetMarksBtn = document.getElementById("resetMarksBtn");
     const resetAllBtn = document.getElementById("resetAllBtn");
     const textContainer = document.getElementById("textContainer");
+    const focusModeBtn = document.getElementById("focusModeBtn");
 
     const statTotal = document.getElementById("statTotal");
     const statUnreviewed = document.getElementById("statUnreviewed");
@@ -769,9 +797,13 @@
         span.classList.add(getWordClass(item.status));
         span.dataset.key = key;
 
-        span.addEventListener("click", () => {
+        function handleWordSelection(event) {
+          event.preventDefault();
           setSelectedItem(key);
-        });
+        }
+
+        span.addEventListener("click", handleWordSelection);
+        span.addEventListener("touchstart", handleWordSelection, { passive: false });
 
         textContainer.appendChild(span);
       });
@@ -820,10 +852,9 @@
       }
 
       items.forEach(item => {
-        const row = document.createElement("tr");
-
         let pillClass = getWordClass(item.status);
 
+        const row = document.createElement("tr");
         row.innerHTML = `
           <td>${item.spanish}</td>
           <td><span class="type-pill">${getTypeLabel(item.type)}</span></td>
@@ -887,7 +918,7 @@
 
     function exportWorkFile() {
       const exportObject = {
-        version: 8,
+        version: 9,
         exportedAt: new Date().toISOString(),
         data: {
           items: appData.items
@@ -976,6 +1007,16 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
     }
+
+    focusModeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("focus-mode");
+
+      if (document.body.classList.contains("focus-mode")) {
+        focusModeBtn.textContent = "Avsluta fokusläge";
+      } else {
+        focusModeBtn.textContent = "Fokusera på texten";
+      }
+    });
 
     loadTextBtn.addEventListener("click", loadText);
     resetMarksBtn.addEventListener("click", resetMarks);
