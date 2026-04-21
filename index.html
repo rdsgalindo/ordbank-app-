@@ -406,11 +406,43 @@
     .muted {
       color: #666;
     }
+
+    .flashcard {
+      border: 1px solid var(--color-border);
+      border-radius: 14px;
+      padding: 20px;
+      background: white;
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .flashcard-side-label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .flashcard-text {
+      font-size: 30px;
+      font-weight: bold;
+      text-align: center;
+      word-break: break-word;
+    }
+
+    .flashcard-answer {
+      margin-top: 18px;
+      font-size: 24px;
+      text-align: center;
+      word-break: break-word;
+    }
   </style>
 </head>
 <body>
   <h1>Spansk text med personlig ordbank</h1>
-  <div class="version">Version: v6 sticky panel + högerklick + räknare + flashcard-export</div>
+  <div class="version">Version: v7 intern flashcard-sida</div>
 
   <div class="layout">
     <div class="main-column">
@@ -545,7 +577,7 @@
             <option value="known">Bara kan</option>
           </select>
 
-          <button id="startTrainingBtn">Starta träning</button>
+          <button id="startTrainingBtn">Starta skrivträning</button>
         </div>
 
         <div id="trainingBox" class="training-box hidden">
@@ -567,6 +599,53 @@
 
           <div id="trainingFeedback" class="training-feedback"></div>
           <div class="stats" id="trainingScore"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>7. Flashcards i appen</h2>
+
+        <div class="controls">
+          <label for="flashcardFilter">Urval:</label>
+          <select id="flashcardFilter">
+            <option value="all">Alla med översättning</option>
+            <option value="unknown-unsure">Bara okända och osäkra</option>
+            <option value="unknown">Bara okända</option>
+            <option value="unsure">Bara osäkra</option>
+            <option value="known">Bara kan</option>
+          </select>
+
+          <label for="flashcardDirection">Visa först:</label>
+          <select id="flashcardDirection">
+            <option value="es-first">Spanska först</option>
+            <option value="sv-first">Svenska först</option>
+          </select>
+
+          <button id="startFlashcardsBtn">Starta flashcards</button>
+        </div>
+
+        <div id="flashcardBox" class="training-box hidden">
+          <div class="small" id="flashcardProgress"></div>
+
+          <div class="flashcard">
+            <div class="flashcard-side-label" id="flashcardSideLabel">Framsida</div>
+            <div class="flashcard-text" id="flashcardFront">-</div>
+            <div class="flashcard-answer hidden" id="flashcardBack">-</div>
+          </div>
+
+          <div class="controls" style="margin-top: 14px;">
+            <button id="showFlashcardAnswerBtn">Visa svar</button>
+            <button id="nextFlashcardBtn">Nästa kort</button>
+            <button id="endFlashcardsBtn">Avsluta</button>
+          </div>
+
+          <div class="controls" style="margin-top: 14px;">
+            <button id="flashcardSetUnknownBtn">Kan inte</button>
+            <button id="flashcardSetUnsureBtn">Osäker</button>
+            <button id="flashcardSetKnownBtn">Kan</button>
+          </div>
+
+          <div class="small" id="flashcardMeta" style="margin-top:10px;"></div>
         </div>
       </div>
     </div>
@@ -603,9 +682,9 @@
         </div>
 
         <div class="card">
-          <h2>Arbetsfil</h2>
+          <h2>Ordbanksfil</h2>
           <p class="small">
-            Använd detta för att fortsätta senare.
+            Sparar bara ordbanken, inte själva texten.
           </p>
           <div class="controls">
             <button id="saveWorkBtn">Spara min ordbank</button>
@@ -615,7 +694,7 @@
         </div>
 
         <div class="card">
-          <h2>Flashcards</h2>
+          <h2>Flashcards ut</h2>
           <p class="small">
             Exporterar till TSV-format för Quizlet, Anki, Excel eller Google Sheets.
           </p>
@@ -636,7 +715,7 @@
   </div>
 
   <script>
-    const STORAGE_KEY = "ordbank_app_v6";
+    const STORAGE_KEY = "ordbank_app_v7";
 
     const textInput = document.getElementById("textInput");
     const loadTextBtn = document.getElementById("loadTextBtn");
@@ -689,6 +768,22 @@
     const trainingFeedback = document.getElementById("trainingFeedback");
     const trainingScore = document.getElementById("trainingScore");
 
+    const flashcardFilter = document.getElementById("flashcardFilter");
+    const flashcardDirection = document.getElementById("flashcardDirection");
+    const startFlashcardsBtn = document.getElementById("startFlashcardsBtn");
+    const flashcardBox = document.getElementById("flashcardBox");
+    const flashcardProgress = document.getElementById("flashcardProgress");
+    const flashcardSideLabel = document.getElementById("flashcardSideLabel");
+    const flashcardFront = document.getElementById("flashcardFront");
+    const flashcardBack = document.getElementById("flashcardBack");
+    const showFlashcardAnswerBtn = document.getElementById("showFlashcardAnswerBtn");
+    const nextFlashcardBtn = document.getElementById("nextFlashcardBtn");
+    const endFlashcardsBtn = document.getElementById("endFlashcardsBtn");
+    const flashcardSetUnknownBtn = document.getElementById("flashcardSetUnknownBtn");
+    const flashcardSetUnsureBtn = document.getElementById("flashcardSetUnsureBtn");
+    const flashcardSetKnownBtn = document.getElementById("flashcardSetKnownBtn");
+    const flashcardMeta = document.getElementById("flashcardMeta");
+
     const contextMenu = document.getElementById("contextMenu");
 
     let appData = {
@@ -703,6 +798,10 @@
     let currentTrainingIndex = 0;
     let trainingCorrect = 0;
     let trainingChecked = false;
+
+    let flashcardItems = [];
+    let currentFlashcardIndex = 0;
+    let flashcardAnswerShown = false;
 
     function normalizeWord(word) {
       return word
@@ -1003,6 +1102,7 @@
       renderStats();
       setSelectedItem(null);
       endTraining();
+      endFlashcards();
       hideContextMenu();
     }
 
@@ -1021,14 +1121,17 @@
       renderStats();
       setSelectedItem(null);
       endTraining();
+      endFlashcards();
       hideContextMenu();
     }
 
     function exportWorkFile() {
       const exportObject = {
-        version: 6,
+        version: 7,
         exportedAt: new Date().toISOString(),
-        data: appData
+        data: {
+          items: appData.items
+        }
       };
 
       const blob = new Blob([JSON.stringify(exportObject, null, 2)], {
@@ -1061,18 +1164,15 @@
             return;
           }
 
-          appData = {
-            text: imported.data.text || "",
-            items: imported.data.items || {}
-          };
+          appData.items = imported.data.items || {};
 
-          textInput.value = appData.text;
           saveAppData();
           renderText();
           renderWordBank();
           renderStats();
           setSelectedItem(null);
           endTraining();
+          endFlashcards();
           hideContextMenu();
 
           alert("Ordbanken har lästs in.");
@@ -1142,6 +1242,27 @@
           if (filter === "unknown") return item.statusNormalized === "unknown";
           if (filter === "unsure") return item.statusNormalized === "unsure";
           if (filter === "known") return item.statusNormalized === "known";
+          return false;
+        });
+    }
+
+    function getFlashcardCandidates() {
+      return Object.entries(appData.items)
+        .map(([key, item]) => ({
+          key,
+          ...item
+        }))
+        .filter(item => (item.translation || "").trim() !== "")
+        .filter(item => {
+          const filter = flashcardFilter.value;
+
+          if (filter === "all") return true;
+          if (filter === "unknown-unsure") {
+            return item.status === "unknown" || item.status === "unsure";
+          }
+          if (filter === "unknown") return item.status === "unknown";
+          if (filter === "unsure") return item.status === "unsure";
+          if (filter === "known") return item.status === "known";
           return false;
         });
     }
@@ -1243,6 +1364,84 @@
       trainingWord.textContent = "-";
     }
 
+    function startFlashcards() {
+      flashcardItems = getFlashcardCandidates();
+
+      if (flashcardItems.length === 0) {
+        alert("Det finns inga ord eller uttryck med översättning för detta urval.");
+        return;
+      }
+
+      shuffle(flashcardItems);
+      currentFlashcardIndex = 0;
+      flashcardAnswerShown = false;
+
+      flashcardBox.classList.remove("hidden");
+      showFlashcard();
+    }
+
+    function showFlashcard() {
+      if (currentFlashcardIndex >= flashcardItems.length) {
+        flashcardProgress.textContent = "Klar";
+        flashcardSideLabel.textContent = "Klart";
+        flashcardFront.textContent = "Flashcards klara";
+        flashcardBack.classList.add("hidden");
+        flashcardBack.textContent = "";
+        flashcardMeta.textContent = "";
+        return;
+      }
+
+      const item = flashcardItems[currentFlashcardIndex];
+      const showSpanishFirst = flashcardDirection.value === "es-first";
+
+      flashcardProgress.textContent = `Kort ${currentFlashcardIndex + 1} av ${flashcardItems.length}`;
+      flashcardSideLabel.textContent = showSpanishFirst ? "Framsida: spanska" : "Framsida: svenska";
+      flashcardFront.textContent = showSpanishFirst ? item.spanish : item.translation;
+      flashcardBack.textContent = showSpanishFirst ? item.translation : item.spanish;
+      flashcardBack.classList.add("hidden");
+      flashcardMeta.textContent = `${getTypeLabel(item.type)} • Status: ${getStatusLabel(item.status)}`;
+      flashcardAnswerShown = false;
+    }
+
+    function showFlashcardAnswer() {
+      if (currentFlashcardIndex >= flashcardItems.length) return;
+      flashcardBack.classList.remove("hidden");
+      flashcardAnswerShown = true;
+    }
+
+    function setFlashcardStatus(status) {
+      if (currentFlashcardIndex >= flashcardItems.length) return;
+
+      const item = flashcardItems[currentFlashcardIndex];
+      if (!appData.items[item.key]) return;
+
+      appData.items[item.key].status = status;
+      saveAppData();
+      renderText();
+      renderWordBank();
+      renderStats();
+      flashcardMeta.textContent = `${getTypeLabel(item.type)} • Status: ${getStatusLabel(status)}`;
+    }
+
+    function nextFlashcard() {
+      if (currentFlashcardIndex >= flashcardItems.length) return;
+      currentFlashcardIndex++;
+      showFlashcard();
+    }
+
+    function endFlashcards() {
+      flashcardItems = [];
+      currentFlashcardIndex = 0;
+      flashcardAnswerShown = false;
+      flashcardBox.classList.add("hidden");
+      flashcardProgress.textContent = "";
+      flashcardSideLabel.textContent = "Framsida";
+      flashcardFront.textContent = "-";
+      flashcardBack.textContent = "";
+      flashcardBack.classList.add("hidden");
+      flashcardMeta.textContent = "";
+    }
+
     function showContextMenu(x, y) {
       contextMenu.style.display = "block";
       contextMenu.style.left = `${x}px`;
@@ -1318,6 +1517,14 @@
         }
       }
     });
+
+    startFlashcardsBtn.addEventListener("click", startFlashcards);
+    showFlashcardAnswerBtn.addEventListener("click", showFlashcardAnswer);
+    nextFlashcardBtn.addEventListener("click", nextFlashcard);
+    endFlashcardsBtn.addEventListener("click", endFlashcards);
+    flashcardSetUnknownBtn.addEventListener("click", () => setFlashcardStatus("unknown"));
+    flashcardSetUnsureBtn.addEventListener("click", () => setFlashcardStatus("unsure"));
+    flashcardSetKnownBtn.addEventListener("click", () => setFlashcardStatus("known"));
 
     loadAppData();
     textInput.value = appData.text;
